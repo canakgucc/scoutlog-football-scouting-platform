@@ -1,0 +1,146 @@
+<section class="detail-page">
+  <a class="back-link" routerLink="/players">Back to players</a>
+
+  @if (isLoading()) {
+    <div class="state-card">
+      <span class="loader"></span>
+      <strong>Loading player detail...</strong>
+    </div>
+  } @else if (errorMessage()) {
+    <div class="state-card error">
+      <strong>{{ errorMessage() }}</strong>
+      <button type="button" (click)="loadPlayer()">Try again</button>
+    </div>
+  } @else if (player(); as player) {
+    <div class="hero-card">
+      <div class="avatar">
+        @if (photoSource(player); as photo) {
+          <img
+            [src]="photo"
+            [alt]="player.firstName + ' ' + player.lastName"
+            (error)="onPhotoError()"
+          />
+        } @else {
+          <span>{{ player.firstName[0] }}{{ player.lastName[0] }}</span>
+        }
+      </div>
+
+      <div class="identity">
+        <p class="eyebrow">Player profile</p>
+        <h2>{{ player.firstName }} {{ player.lastName }}</h2>
+        <span>{{ player.position }} · {{ player.nationality }}</span>
+      </div>
+
+      <div class="profile-actions">
+        <span class="status">{{ player.status }}</span>
+        <a [routerLink]="['/scout-reports/create', player.id]">New report</a>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <article>
+        <span>Age</span>
+        <strong>{{ calculateAge(player.birthDate) }}</strong>
+      </article>
+      <article>
+        <span>Preferred Foot</span>
+        <strong>{{ player.preferredFoot }}</strong>
+      </article>
+      <article>
+        <span>Height</span>
+        <strong>{{ player.height }} cm</strong>
+      </article>
+      <article>
+        <span>Weight</span>
+        <strong>{{ player.weight }} kg</strong>
+      </article>
+    </div>
+
+    <div class="content-grid">
+      <section class="panel score-panel">
+        <div class="panel-header">
+          <h3>Average Scores</h3>
+          <span>{{ reports().length }} reports</span>
+        </div>
+
+        <div class="score-list">
+          <div>
+            <span>Technical</span>
+            <b>{{ averageScores().technical | number: '1.1-1' }}</b>
+            <i><em [style.width.%]="scorePercent(averageScores().technical)"></em></i>
+          </div>
+          <div>
+            <span>Physical</span>
+            <b>{{ averageScores().physical | number: '1.1-1' }}</b>
+            <i><em [style.width.%]="scorePercent(averageScores().physical)"></em></i>
+          </div>
+          <div>
+            <span>Tactical</span>
+            <b>{{ averageScores().tactical | number: '1.1-1' }}</b>
+            <i><em [style.width.%]="scorePercent(averageScores().tactical)"></em></i>
+          </div>
+          <div>
+            <span>Mental</span>
+            <b>{{ averageScores().mental | number: '1.1-1' }}</b>
+            <i><em [style.width.%]="scorePercent(averageScores().mental)"></em></i>
+          </div>
+          <div>
+            <span>Potential</span>
+            <b>{{ averageScores().potential | number: '1.1-1' }}</b>
+            <i><em [style.width.%]="scorePercent(averageScores().potential)"></em></i>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel latest-panel">
+        <div class="panel-header">
+          <h3>Latest Analysis</h3>
+          <span>{{ latestReport() ? latestReport()!.recommendation : 'No report' }}</span>
+        </div>
+
+        @if (latestReport(); as report) {
+          <h4>{{ report.title }}</h4>
+          <p>{{ report.analysisSummary || report.observationText }}</p>
+          <div class="tag-row">
+            @for (tag of (report.tags || 'takip edilmeli').split(';'); track tag) {
+              <span>{{ tag.trim() }}</span>
+            }
+          </div>
+          <div class="suggested">
+            <strong>Suggested score {{ report.suggestedScore || 0 }}/10</strong>
+            <i><em [style.width.%]="suggestedScorePercent(report.suggestedScore)"></em></i>
+          </div>
+        } @else {
+          <p>No scout analysis available yet.</p>
+        }
+      </section>
+    </div>
+
+    <section class="panel">
+      <div class="panel-header">
+        <h3>Scout Reports</h3>
+        <span>{{ reports().length }} total</span>
+      </div>
+
+      @if (reports().length) {
+        <div class="report-list">
+          @for (report of reports(); track report.id) {
+            <article class="report-row">
+              <div>
+                <strong>{{ report.title }}</strong>
+                <span>{{ report.createdAt | date: 'MMM d, y' }} · {{ report.recommendation }}</span>
+                <p>{{ report.observationText }}</p>
+              </div>
+              <div class="report-scores">
+                <b>{{ report.potentialScore }}</b>
+                <small>Potential</small>
+              </div>
+            </article>
+          }
+        </div>
+      } @else {
+        <p class="empty">No scout reports for this player yet.</p>
+      }
+    </section>
+  }
+</section>

@@ -1,0 +1,285 @@
+.dashboard {
+  display: grid;
+  gap: 22px;
+}
+
+.page-header,
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.eyebrow {
+  margin: 0 0 5px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+h2,
+h3 {
+  margin: 0;
+}
+
+h2 {
+  font-size: 2rem;
+}
+
+button {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  background: #ffffff;
+  color: var(--text);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: #14b8a6;
+}
+
+.stat-grid,
+.score-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.stat-card,
+.score-card,
+.panel,
+.state-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 16px 42px rgba(15, 23, 42, 0.06);
+}
+
+.stat-card {
+  padding: 20px;
+}
+
+.stat-card span,
+.score-card span,
+.panel-header span {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 750;
+}
+
+.stat-card strong {
+  display: block;
+  margin-top: 10px;
+  font-size: 2.15rem;
+}
+
+.stat-card.accent {
+  background: #0f766e;
+  color: #ffffff;
+}
+
+.stat-card.accent span {
+  color: #ccfbf1;
+}
+
+.score-card {
+  padding: 18px;
+}
+
+.score-card strong {
+  display: block;
+  margin: 8px 0 12px;
+  font-size: 1.6rem;
+}
+
+.meter,
+.mini-meter,
+.bar-track {
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e5edf2;
+}
+
+.meter {
+  height: 8px;
+}
+
+.mini-meter {
+  width: 70px;
+  height: 7px;
+}
+
+.meter i,
+.mini-meter i,
+.bar-track i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #14b8a6;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+  gap: 16px;
+}
+
+.panel {
+  padding: 20px;
+}
+
+.latest {
+  grid-row: span 2;
+}
+
+.report-list,
+.player-list,
+.bars {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.report-row,
+.player-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px;
+  border: 1px solid #edf2f7;
+  border-radius: 8px;
+  background: #fbfdff;
+}
+
+.report-row strong,
+.report-row span,
+.player-row strong,
+.player-row span {
+  display: block;
+}
+
+.report-row span,
+.player-row span,
+.row-meta small {
+  margin-top: 4px;
+  color: var(--muted);
+}
+
+.row-meta,
+.potential {
+  min-width: 78px;
+  text-align: right;
+}
+
+.row-meta b,
+.potential b {
+  color: #0f766e;
+  font-size: 1.2rem;
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: 132px minmax(80px, 1fr) 32px;
+  align-items: center;
+  gap: 12px;
+}
+
+.bar-row span {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.bar-track {
+  height: 10px;
+}
+
+.warnings ul {
+  display: grid;
+  gap: 10px;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.warnings li {
+  padding: 12px;
+  border-left: 4px solid #f59e0b;
+  border-radius: 8px;
+  background: #fffbeb;
+  color: #78350f;
+  font-weight: 650;
+}
+
+.empty {
+  color: var(--muted);
+}
+
+.state-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 22px;
+}
+
+.state-card.error {
+  justify-content: space-between;
+  color: #991b1b;
+  background: #fef2f2;
+}
+
+.loader {
+  width: 20px;
+  height: 20px;
+  border: 3px solid #dbeafe;
+  border-top-color: #0f766e;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 1100px) {
+  .stat-grid,
+  .score-grid,
+  .dashboard-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .latest {
+    grid-row: auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .page-header,
+  .panel-header,
+  .report-row,
+  .player-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .stat-grid,
+  .score-grid,
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .row-meta,
+  .potential {
+    width: 100%;
+    text-align: left;
+  }
+
+  .bar-row {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,62 @@
+.sidebar {
+  min-height: 100dvh;
+  padding: 24px 18px;
+  background: #111827;
+  color: #f9fafb;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: inherit;
+  text-decoration: none;
+  margin-bottom: 30px;
+}
+
+.brand-mark {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: #2dd4bf;
+  color: #0f172a;
+  font-weight: 800;
+}
+
+.brand strong,
+.brand small {
+  display: block;
+}
+
+.brand small {
+  margin-top: 2px;
+  color: #9ca3af;
+}
+
+.nav {
+  display: grid;
+  gap: 6px;
+}
+
+.nav a {
+  color: #d1d5db;
+  text-decoration: none;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-weight: 650;
+}
+
+.nav a:hover,
+.nav a.active {
+  background: rgba(45, 212, 191, 0.13);
+  color: #ffffff;
+}
+
+@media (max-width: 860px) {
+  .sidebar {
+    min-height: auto;
+  }
+}

@@ -1,0 +1,16 @@
+<aside class="sidebar">
+  <a class="brand" routerLink="/dashboard" aria-label="ScoutLog dashboard">
+    <span class="brand-mark">SL</span>
+    <span>
+      <strong>ScoutLog</strong>
+      <small>{{ currentUser?.clubName || 'Club Workspace' }}</small>
+    </span>
+  </a>
+
+  <nav class="nav">
+    <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+    <a routerLink="/players" routerLinkActive="active">Players</a>
+    <a routerLink="/scout-reports" routerLinkActive="active">Scout Reports</a>
+    <a routerLink="/comparison" routerLinkActive="active">Comparison</a>
+  </nav>
+</aside>

@@ -1,0 +1,152 @@
+<section class="create-page">
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">Squad registration</p>
+      <h2>Add Player</h2>
+    </div>
+    <a routerLink="/players">Back to players</a>
+  </div>
+
+  <form class="player-form" [formGroup]="form" (ngSubmit)="submit()">
+    <section class="form-section">
+      <div class="section-title">
+        <strong>Identity</strong>
+        <span>Basic player profile used across reports and comparisons.</span>
+      </div>
+
+      <div class="form-grid">
+        <label>
+          First name
+          <input type="text" formControlName="firstName" placeholder="Arda" />
+          @if (hasError('firstName')) {
+            <small>First name is required.</small>
+          }
+        </label>
+
+        <label>
+          Last name
+          <input type="text" formControlName="lastName" placeholder="Yilmaz" />
+          @if (hasError('lastName')) {
+            <small>Last name is required.</small>
+          }
+        </label>
+
+        <label>
+          Birth date
+          <input type="date" formControlName="birthDate" />
+          @if (hasError('birthDate')) {
+            <small>Birth date is required.</small>
+          }
+        </label>
+
+        <label>
+          Nationality
+          <input type="text" formControlName="nationality" placeholder="Turkish" />
+          @if (hasError('nationality')) {
+            <small>Nationality is required.</small>
+          }
+        </label>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <div class="section-title">
+        <strong>Football Profile</strong>
+        <span>Attributes shown on the player list, detail, and comparison screens.</span>
+      </div>
+
+      <div class="form-grid">
+        <label>
+          Position
+          <select formControlName="position">
+            <option value="Goalkeeper">Goalkeeper</option>
+            <option value="Center Back">Center Back</option>
+            <option value="Full Back">Full Back</option>
+            <option value="Defensive Midfielder">Defensive Midfielder</option>
+            <option value="Central Midfielder">Central Midfielder</option>
+            <option value="Attacking Midfielder">Attacking Midfielder</option>
+            <option value="Right Winger">Right Winger</option>
+            <option value="Left Winger">Left Winger</option>
+            <option value="Striker">Striker</option>
+          </select>
+        </label>
+
+        <label>
+          Preferred foot
+          <select formControlName="preferredFoot">
+            <option value="Right">Right</option>
+            <option value="Left">Left</option>
+            <option value="Both">Both</option>
+          </select>
+        </label>
+
+        <label>
+          Height
+          <input type="number" min="120" max="230" formControlName="height" />
+          @if (hasError('height')) {
+            <small>Height must be between 120 and 230 cm.</small>
+          }
+        </label>
+
+        <label>
+          Weight
+          <input type="number" min="35" max="130" formControlName="weight" />
+          @if (hasError('weight')) {
+            <small>Weight must be between 35 and 130 kg.</small>
+          }
+        </label>
+
+        <label>
+          Status
+          <select formControlName="status">
+            <option value="Active">Active</option>
+            <option value="Passive">Passive</option>
+            <option value="Injured">Injured</option>
+            <option value="Trial">Trial</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="photo-upload">
+        <div class="photo-preview">
+          @if (photoPreview()) {
+            <img [src]="photoPreview()" alt="Selected player preview" />
+          } @else {
+            <span>Photo</span>
+          }
+        </div>
+
+        <label class="file-picker">
+          Player photo
+          <input type="file" accept="image/*" (change)="onPhotoSelected($event)" />
+          <span>Choose image from device</span>
+        </label>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <div class="section-title">
+        <strong>Assignment</strong>
+        <span>The club is assigned automatically from the logged-in scout account.</span>
+      </div>
+
+      <div class="form-grid compact">
+        <label>
+          Team ID
+          <input type="number" min="1" formControlName="teamId" />
+        </label>
+      </div>
+    </section>
+
+    @if (errorMessage()) {
+      <p class="message error">{{ errorMessage() }}</p>
+    }
+
+    <div class="actions">
+      <a routerLink="/players">Cancel</a>
+      <button type="submit" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Creating player...' : 'Create player' }}
+      </button>
+    </div>
+  </form>
+</section>

@@ -1,0 +1,76 @@
+# .NET
+**/bin/
+**/obj/
+TestResults/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# ASP.NET/local secrets
+**/appsettings.Local.json
+**/appsettings.Secrets.json
+**/appsettings.*.local.json
+**/appsettings.Production.json
+**/appsettings.Development.json
+**/secrets.json
+.env
+.env.*
+*.env
+!.env.example
+
+# Angular / Node
+ScoutLog.Client/node_modules/
+ScoutLog.Client/dist/
+ScoutLog.Client/.angular/cache/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE / OS
+.vs/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+.DS_Store
+
+# Logs
+logs/
+*.log
+
+# Coverage
+coverage/
+
+# Publish output
+publish/
+out/
+
+
+# Database files
+*.mdf
+*.ldf
+*.db
+*.sqlite
+*.sqlite3
+
+
+# Build outputs - explicit
+bin/
+obj/
+**/bin/
+**/obj/
+[Bb]in/
+[Oo]bj/
+
+# Angular / Node explicit
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+.angular/
+**/.angular/
+
+
+
+

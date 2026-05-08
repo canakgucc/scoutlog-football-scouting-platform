@@ -1,0 +1,117 @@
+<section class="comparison-page">
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">Selection board</p>
+      <h2>Player Comparison</h2>
+    </div>
+    <button type="button" (click)="loadPlayers()">Refresh</button>
+  </div>
+
+  @if (isLoading()) {
+    <div class="state-card">
+      <span class="loader"></span>
+      <strong>Loading players for comparison...</strong>
+    </div>
+  } @else if (errorMessage()) {
+    <div class="state-card error">
+      <strong>{{ errorMessage() }}</strong>
+      <button type="button" (click)="loadPlayers()">Try again</button>
+    </div>
+  } @else if (players().length < 2) {
+    <div class="state-card">
+      <strong>At least two players are needed for comparison.</strong>
+    </div>
+  } @else {
+    <section class="selector-band">
+      <label>
+        First player
+        <select [ngModel]="selectedLeftId()" (ngModelChange)="setLeftPlayer($event)">
+          @for (player of players(); track player.id) {
+            <option [value]="player.id">{{ player.firstName }} {{ player.lastName }} · {{ player.position }}</option>
+          }
+        </select>
+      </label>
+
+      <div class="versus">VS</div>
+
+      <label>
+        Second player
+        <select [ngModel]="selectedRightId()" (ngModelChange)="setRightPlayer($event)">
+          @for (player of players(); track player.id) {
+            <option [value]="player.id">{{ player.firstName }} {{ player.lastName }} · {{ player.position }}</option>
+          }
+        </select>
+      </label>
+    </section>
+
+    <section class="player-panels">
+      <article class="player-card left">
+        <div class="avatar">
+          @if (photoSource(leftPlayer()); as photo) {
+            <img [src]="photo" [alt]="playerName(leftPlayer())" (error)="onPhotoError(leftPlayer())" />
+          } @else {
+            {{ initials(leftPlayer()) }}
+          }
+        </div>
+        <div>
+          <strong>{{ playerName(leftPlayer()) }}</strong>
+          <span>{{ leftPlayer()?.position }} · {{ leftPlayer()?.nationality }}</span>
+        </div>
+        <b>{{ leftPlayer()?.status }}</b>
+        <small>{{ leftAverages()?.reportCount ?? 0 }} reports</small>
+      </article>
+
+      <article class="player-card right">
+        <div class="avatar">
+          @if (photoSource(rightPlayer()); as photo) {
+            <img [src]="photo" [alt]="playerName(rightPlayer())" (error)="onPhotoError(rightPlayer())" />
+          } @else {
+            {{ initials(rightPlayer()) }}
+          }
+        </div>
+        <div>
+          <strong>{{ playerName(rightPlayer()) }}</strong>
+          <span>{{ rightPlayer()?.position }} · {{ rightPlayer()?.nationality }}</span>
+        </div>
+        <b>{{ rightPlayer()?.status }}</b>
+        <small>{{ rightAverages()?.reportCount ?? 0 }} reports</small>
+      </article>
+    </section>
+
+    @if (isLoadingScores()) {
+      <div class="score-state">
+        <span class="loader"></span>
+        <strong>Loading scout report averages...</strong>
+      </div>
+    } @else if (scoreErrorMessage()) {
+      <div class="score-state error">
+        <strong>{{ scoreErrorMessage() }}</strong>
+      </div>
+    }
+
+    <section class="comparison-board">
+      @for (row of comparisonRows(); track row.label) {
+        <article class="comparison-row" [class.missing]="winner(row) === 'none'">
+          <div class="value left-value" [class.winner]="winner(row) === 'left' || winner(row) === 'tie'">
+            <strong>{{ row.leftValue }}</strong>
+          </div>
+
+          <div class="metric">
+            <div class="metric-head">
+              <span>{{ row.label }}</span>
+              <small>{{ row.note }}</small>
+            </div>
+            <div class="bars">
+              <i class="left-bar" [style.width.%]="barWidth(row.leftMetric, row)"></i>
+              <i class="right-bar" [style.width.%]="barWidth(row.rightMetric, row)"></i>
+            </div>
+          </div>
+
+          <div class="value right-value" [class.winner]="winner(row) === 'right' || winner(row) === 'tie'">
+            <strong>{{ row.rightValue }}</strong>
+          </div>
+        </article>
+      }
+    </section>
+  }
+</section>

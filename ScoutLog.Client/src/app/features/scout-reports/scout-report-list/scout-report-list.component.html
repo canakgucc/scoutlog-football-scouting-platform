@@ -1,0 +1,86 @@
+<section class="reports-page">
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">Scouting intelligence</p>
+      <h2>Scout Reports</h2>
+    </div>
+    <a routerLink="/scout-reports/create">Create report</a>
+  </div>
+
+  <section class="filters">
+    <label>
+      Search
+      <input
+        type="search"
+        placeholder="Player, text, tag, analysis"
+        [ngModel]="searchTerm()"
+        (ngModelChange)="setSearchTerm($event)"
+      />
+    </label>
+
+    <label>
+      Player
+      <select [ngModel]="selectedPlayerId()" (ngModelChange)="setPlayer($event)">
+        <option value="All">All players</option>
+        @for (player of players(); track player.id) {
+          <option [value]="player.id">{{ player.firstName }} {{ player.lastName }}</option>
+        }
+      </select>
+    </label>
+
+    <label>
+      Recommendation
+      <select [ngModel]="selectedRecommendation()" (ngModelChange)="setRecommendation($event)">
+        @for (recommendation of recommendations(); track recommendation) {
+          <option [value]="recommendation">{{ recommendation }}</option>
+        }
+      </select>
+    </label>
+  </section>
+
+  @if (isLoading()) {
+    <div class="state-card">
+      <span class="loader"></span>
+      <strong>Loading scout reports...</strong>
+    </div>
+  } @else if (errorMessage()) {
+    <div class="state-card error">
+      <strong>{{ errorMessage() }}</strong>
+      <button type="button" (click)="loadReports()">Try again</button>
+    </div>
+  } @else if (filteredReports().length === 0) {
+    <div class="state-card">
+      <strong>No scout reports match the current filters.</strong>
+    </div>
+  } @else {
+    <div class="report-grid">
+      @for (report of filteredReports(); track report.id) {
+        <article class="report-card">
+          <div class="report-head">
+            <div>
+              <strong>{{ report.title }}</strong>
+              <span>{{ playerName(report.playerId) }} · {{ report.createdAt | date: 'MMM d, y' }}</span>
+            </div>
+            <b>{{ report.potentialScore }}</b>
+          </div>
+
+          <p>{{ report.analysisSummary || report.observationText }}</p>
+
+          <div class="score-row">
+            <span>Tech {{ report.technicalScore }}</span>
+            <span>Phys {{ report.physicalScore }}</span>
+            <span>Tact {{ report.tacticalScore }}</span>
+            <span>Ment {{ report.mentalScore }}</span>
+          </div>
+
+          <div class="tags">
+            <span class="recommendation">{{ report.recommendation }}</span>
+            @for (tag of splitValues(report.tags); track tag) {
+              <span>{{ tag }}</span>
+            }
+          </div>
+        </article>
+      }
+    </div>
+  }
+</section>

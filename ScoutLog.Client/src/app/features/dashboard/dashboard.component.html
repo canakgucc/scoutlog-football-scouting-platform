@@ -1,0 +1,143 @@
+<section class="dashboard">
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">Performance command center</p>
+      <h2>Dashboard</h2>
+    </div>
+    <button type="button" (click)="loadDashboard()">Refresh</button>
+  </div>
+
+  @if (isLoading()) {
+    <div class="state-card">
+      <span class="loader"></span>
+      <strong>Loading dashboard data...</strong>
+    </div>
+  } @else if (errorMessage()) {
+    <div class="state-card error">
+      <strong>{{ errorMessage() }}</strong>
+      <button type="button" (click)="loadDashboard()">Try again</button>
+    </div>
+  } @else if (summary(); as summary) {
+    <div class="stat-grid">
+      <article class="stat-card">
+        <span>Total Players</span>
+        <strong>{{ summary.totalPlayers }}</strong>
+      </article>
+      <article class="stat-card">
+        <span>Total Scout Reports</span>
+        <strong>{{ summary.totalScoutReports }}</strong>
+      </article>
+      <article class="stat-card accent">
+        <span>Average Potential Score</span>
+        <strong>{{ summary.averagePotentialScore | number: '1.1-1' }}</strong>
+      </article>
+      <article class="stat-card">
+        <span>Players To Watch</span>
+        <strong>{{ summary.playersToWatchCount }}</strong>
+      </article>
+    </div>
+
+    <div class="score-grid">
+      <article class="score-card">
+        <span>Technical</span>
+        <strong>{{ summary.averageTechnicalScore | number: '1.1-1' }}</strong>
+        <div class="meter"><i [style.width.%]="scorePercent(summary.averageTechnicalScore)"></i></div>
+      </article>
+      <article class="score-card">
+        <span>Physical</span>
+        <strong>{{ summary.averagePhysicalScore | number: '1.1-1' }}</strong>
+        <div class="meter"><i [style.width.%]="scorePercent(summary.averagePhysicalScore)"></i></div>
+      </article>
+      <article class="score-card">
+        <span>Tactical</span>
+        <strong>{{ summary.averageTacticalScore | number: '1.1-1' }}</strong>
+        <div class="meter"><i [style.width.%]="scorePercent(summary.averageTacticalScore)"></i></div>
+      </article>
+      <article class="score-card">
+        <span>Mental</span>
+        <strong>{{ summary.averageMentalScore | number: '1.1-1' }}</strong>
+        <div class="meter"><i [style.width.%]="scorePercent(summary.averageMentalScore)"></i></div>
+      </article>
+    </div>
+
+    <div class="dashboard-grid">
+      <section class="panel latest">
+        <div class="panel-header">
+          <h3>Latest Scout Reports</h3>
+          <span>{{ summary.latestScoutReports.length }} reports</span>
+        </div>
+        <div class="report-list">
+          @for (report of summary.latestScoutReports; track report.id) {
+            <article class="report-row">
+              <div>
+                <strong>{{ report.playerName }}</strong>
+                <span>{{ report.title }}</span>
+              </div>
+              <div class="row-meta">
+                <b>{{ report.potentialScore }}</b>
+                <small>{{ report.createdAt | date: 'MMM d' }}</small>
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h3>Top Potential Players</h3>
+          <span>watchlist</span>
+        </div>
+        <div class="player-list">
+          @for (player of summary.topPotentialPlayers; track player.playerId) {
+            <article class="player-row">
+              <div>
+                <strong>{{ player.fullName }}</strong>
+                <span>{{ player.position }}</span>
+              </div>
+              <div class="potential">
+                <b>{{ player.potentialScore }}</b>
+                <div class="mini-meter">
+                  <i [style.width.%]="suggestedScorePercent(player.suggestedScore)"></i>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h3>Position Distribution</h3>
+          <span>{{ summary.positionDistribution.length }} positions</span>
+        </div>
+        <div class="bars">
+          @for (item of summary.positionDistribution; track item.position) {
+            <div class="bar-row">
+              <span>{{ item.position }}</span>
+              <div class="bar-track">
+                <i [style.width.%]="positionPercent(item, summary.positionDistribution)"></i>
+              </div>
+              <b>{{ item.count }}</b>
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="panel warnings">
+        <div class="panel-header">
+          <h3>Recent Performance Warnings</h3>
+          <span>risk signals</span>
+        </div>
+        @if (summary.recentPerformanceWarnings.length) {
+          <ul>
+            @for (warning of summary.recentPerformanceWarnings; track warning) {
+              <li>{{ warning }}</li>
+            }
+          </ul>
+        } @else {
+          <p class="empty">No recent warning signals.</p>
+        }
+      </section>
+    </div>
+  }
+</section>

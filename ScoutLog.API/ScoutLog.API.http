@@ -1,0 +1,6 @@
+@ScoutLog.API_HostAddress = http://localhost:5198
+
+GET {{ScoutLog.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

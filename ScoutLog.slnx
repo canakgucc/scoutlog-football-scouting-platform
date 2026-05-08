@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="ScoutLog.API/ScoutLog.API.csproj" />
+  <Project Path="ScoutLog.Application/ScoutLog.Application.csproj" />
+  <Project Path="ScoutLog.Domain/ScoutLog.Domain.csproj" />
+  <Project Path="ScoutLog.Infrastructure/ScoutLog.Infrastructure.csproj" />
+</Solution>

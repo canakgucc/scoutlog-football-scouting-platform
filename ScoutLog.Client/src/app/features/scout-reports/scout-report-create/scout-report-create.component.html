@@ -1,0 +1,137 @@
+<section class="create-page">
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">Live analysis</p>
+      <h2>Create Scout Report</h2>
+    </div>
+    <a routerLink="/scout-reports">Back to reports</a>
+  </div>
+
+  <div class="layout-grid">
+    <form class="report-form" [formGroup]="form" (ngSubmit)="submit()">
+      <label>
+        Player
+        <select formControlName="playerId">
+          @if (isLoadingPlayers()) {
+            <option [ngValue]="0">Loading players...</option>
+          } @else {
+            @for (player of players(); track player.id) {
+              <option [ngValue]="player.id">{{ player.firstName }} {{ player.lastName }} · {{ player.position }}</option>
+            }
+          }
+        </select>
+      </label>
+
+      <label>
+        Title
+        <input type="text" formControlName="title" />
+      </label>
+
+      <label class="wide">
+        Observation text
+        <textarea rows="7" formControlName="observationText"></textarea>
+      </label>
+
+      <div class="score-grid">
+        <label>
+          Technical
+          <input type="number" min="0" max="100" formControlName="technicalScore" />
+        </label>
+        <label>
+          Physical
+          <input type="number" min="0" max="100" formControlName="physicalScore" />
+        </label>
+        <label>
+          Tactical
+          <input type="number" min="0" max="100" formControlName="tacticalScore" />
+        </label>
+        <label>
+          Mental
+          <input type="number" min="0" max="100" formControlName="mentalScore" />
+        </label>
+        <label>
+          Potential
+          <input type="number" min="0" max="100" formControlName="potentialScore" />
+        </label>
+      </div>
+
+      <label>
+        Recommendation
+        <select formControlName="recommendation">
+          <option value="Izlenmeli">Izlenmeli</option>
+          <option value="Takip Edilmeli">Takip Edilmeli</option>
+          <option value="Gelistirilmeli">Gelistirilmeli</option>
+          <option value="Transfer Onerisi">Transfer Onerisi</option>
+          <option value="Uygun Degil">Uygun Degil</option>
+        </select>
+      </label>
+
+      @if (errorMessage()) {
+        <p class="message error">{{ errorMessage() }}</p>
+      }
+      @if (successMessage()) {
+        <p class="message success">{{ successMessage() }}</p>
+      }
+
+      <button type="submit" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Creating report...' : 'Create report and analyze' }}
+      </button>
+    </form>
+
+    <aside class="analysis-panel">
+      <div class="panel-header">
+        <p>AI simulation</p>
+        <h3>Analysis Result</h3>
+      </div>
+
+      @if (createdReport(); as report) {
+        <div class="score-orb">
+          <strong>{{ report.suggestedScore || 0 }}</strong>
+          <span>suggested score</span>
+          <i><em [style.width.%]="scorePercent(report.suggestedScore)"></em></i>
+        </div>
+
+        <section>
+          <h4>Summary</h4>
+          <p>{{ report.analysisSummary }}</p>
+        </section>
+
+        <section>
+          <h4>Strengths</h4>
+          <div class="chips">
+            @for (item of splitValues(report.strengths); track item) {
+              <span>{{ item }}</span>
+            }
+          </div>
+        </section>
+
+        <section>
+          <h4>Weaknesses</h4>
+          <div class="chips warning">
+            @for (item of splitValues(report.weaknesses); track item) {
+              <span>{{ item }}</span>
+            }
+          </div>
+        </section>
+
+        <section>
+          <h4>Tags</h4>
+          <div class="chips">
+            @for (item of splitValues(report.tags); track item) {
+              <span>{{ item }}</span>
+            }
+          </div>
+        </section>
+
+        <section>
+          <h4>Development advice</h4>
+          <p>{{ report.developmentAdvice }}</p>
+        </section>
+      } @else {
+        <p class="empty">
+          Submit a report to generate rule-based analysis with strengths, weaknesses, tags, and development advice.
+        </p>
+      }
+    </aside>
+  </div>
+</section>

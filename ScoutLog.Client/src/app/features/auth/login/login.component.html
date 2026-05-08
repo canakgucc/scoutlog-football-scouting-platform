@@ -1,0 +1,229 @@
+<main class="login-page">
+  <section class="hero-section">
+    <div class="hero-copy">
+      <span class="brand-mark">SL</span>
+      <p class="eyebrow">ScoutLog club intelligence platform</p>
+      <h1>Football scouting, reimagined.</h1>
+      <p class="hero-subtitle">
+        ScoutLog gives football clubs a secure workspace to manage players, create scout reports,
+        compare talent, and transform match observations into actionable academy intelligence.
+      </p>
+
+      <div class="hero-actions">
+        <button class="primary-link" type="button" (click)="goToAuthSection('signIn')">
+          <span class="ball-accent" aria-hidden="true"></span>
+          Sign in
+        </button>
+        <button class="secondary-link" type="button" (click)="goToAuthSection('register')">
+          <span class="pitch-accent" aria-hidden="true"></span>
+          Register Club
+        </button>
+        <button class="text-link" type="button" (click)="goToAuthSection('signIn')">
+          <span class="ball-accent mini" aria-hidden="true"></span>
+          Explore Demo
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="proof-strip" aria-label="ScoutLog platform highlights">
+    <span><i class="proof-check" aria-hidden="true">✓</i>Multi-club access</span>
+    <span><i class="proof-check" aria-hidden="true">✓</i>AI-style reports</span>
+    <span><i class="proof-check" aria-hidden="true">✓</i>Player comparison</span>
+    <span><i class="proof-check" aria-hidden="true">✓</i>Secure scouting workspace</span>
+  </section>
+
+  <section class="features-section" aria-labelledby="features-heading">
+    <div class="section-heading">
+      <p class="eyebrow">Platform modules</p>
+      <h2 id="features-heading">Everything a modern academy needs to evaluate talent.</h2>
+    </div>
+
+    <div class="feature-grid">
+      <article>
+        <i class="feature-motif pitch-board" aria-hidden="true"></i>
+        <span>01</span>
+        <h3>Club-based Dashboard</h3>
+        <p>Track player counts, watch lists, recent reports, warnings, and average performance scores.</p>
+      </article>
+      <article>
+        <i class="feature-motif player-dot" aria-hidden="true"></i>
+        <span>02</span>
+        <h3>Player Management</h3>
+        <p>Keep player profiles, position data, status, physical details, and club-scoped records organized.</p>
+      </article>
+      <article>
+        <i class="feature-motif scout-lens" aria-hidden="true"></i>
+        <span>03</span>
+        <h3>Scout Reports</h3>
+        <p>Create structured observations with technical, physical, tactical, mental, and potential ratings.</p>
+      </article>
+      <article>
+        <i class="feature-motif analysis-wave" aria-hidden="true"></i>
+        <span>04</span>
+        <h3>AI Analysis Simulation</h3>
+        <p>Turn football observations into strengths, weaknesses, tags, advice, and suggested scores.</p>
+      </article>
+      <article>
+        <i class="feature-motif versus-lines" aria-hidden="true"></i>
+        <span>05</span>
+        <h3>Player Comparison</h3>
+        <p>Compare two players side by side with profile information and report-based score averages.</p>
+      </article>
+      <article>
+        <i class="feature-motif secure-pitch" aria-hidden="true"></i>
+        <span>06</span>
+        <h3>Secure Multi-Club Access</h3>
+        <p>Each club sees its own players, reports, dashboard metrics, and demo environment.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="workflow-section" aria-labelledby="workflow-heading">
+    <div class="section-heading">
+      <p class="eyebrow">How it works</p>
+      <h2 id="workflow-heading">From match notes to academy intelligence.</h2>
+    </div>
+
+    <div class="workflow-grid">
+      <article>
+        <strong>1</strong>
+        <h3>Register your club</h3>
+        <p>Create a secure workspace for your academy and scouting team.</p>
+      </article>
+      <article>
+        <strong>2</strong>
+        <h3>Manage players and reports</h3>
+        <p>Build player profiles and attach scout observations from matches and training sessions.</p>
+      </article>
+      <article>
+        <strong>3</strong>
+        <h3>Generate scouting intelligence</h3>
+        <p>Review summaries, warnings, comparisons, and development recommendations.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="auth-section" aria-labelledby="auth-heading">
+    <div class="section-heading">
+      <p class="eyebrow">Access</p>
+      <h2 id="auth-heading">Sign in or prepare your club workspace.</h2>
+    </div>
+
+    <section id="auth-section" class="auth-card" aria-label="Authentication">
+      <div class="auth-tabs" role="tablist" aria-label="Authentication mode">
+        <button
+          type="button"
+          role="tab"
+          [attr.aria-selected]="activeAuthTab === 'signIn'"
+          [class.is-active]="activeAuthTab === 'signIn'"
+          (click)="selectAuthTab('signIn')"
+        >
+          Sign in
+        </button>
+        <button
+          type="button"
+          role="tab"
+          [attr.aria-selected]="activeAuthTab === 'register'"
+          [class.is-active]="activeAuthTab === 'register'"
+          (click)="selectAuthTab('register')"
+        >
+          Register Club
+        </button>
+      </div>
+
+      @if (activeAuthTab === 'signIn') {
+        <div class="panel-header">
+          <p>Secure access</p>
+          <h2>Enter your club workspace</h2>
+        </div>
+
+        <form [formGroup]="signInForm" (ngSubmit)="login()" autocomplete="off">
+          <label>
+            Email
+            <input type="email" formControlName="email" autocomplete="off" />
+          </label>
+
+          <label>
+            Password
+            <input type="password" formControlName="password" autocomplete="new-password" />
+          </label>
+
+          @if (errorMessage) {
+            <p class="error">{{ errorMessage }}</p>
+          }
+
+          <button class="primary-action" type="submit" [disabled]="isLoading">
+            {{ isLoading ? 'Signing in...' : 'Sign in' }}
+          </button>
+        </form>
+
+        <div class="demo-block">
+          <p>Explore with demo clubs</p>
+          <div class="demo-clubs" aria-label="Demo club selection">
+            @for (club of demoClubs; track club.id) {
+              <button
+                class="club-demo"
+                [class.fenerbahce]="club.id === 'fenerbahce'"
+                [class.galatasaray]="club.id === 'galatasaray'"
+                [class.besiktas]="club.id === 'besiktas'"
+                [class.is-selected]="selectedDemoClub === club.id"
+                [attr.aria-label]="club.name"
+                type="button"
+                (click)="fillDemoClub(club)"
+              >
+                <span class="club-logo" aria-hidden="true"></span>
+              </button>
+            }
+          </div>
+        </div>
+      } @else {
+        <div class="panel-header">
+          <p>New workspace</p>
+          <h2>Register your club</h2>
+        </div>
+
+        <form [formGroup]="registerForm" (ngSubmit)="registerClub()" autocomplete="off">
+          <label>
+            Club Name
+            <input type="text" formControlName="clubName" autocomplete="organization" />
+          </label>
+
+          <label>
+            Contact Person
+            <input type="text" formControlName="contactPerson" autocomplete="name" />
+          </label>
+
+          <label>
+            Email
+            <input type="email" formControlName="email" autocomplete="off" />
+          </label>
+
+          <label>
+            Password
+            <input type="password" formControlName="password" autocomplete="new-password" />
+          </label>
+
+          <label>
+            Confirm Password
+            <input type="password" formControlName="confirmPassword" autocomplete="new-password" />
+          </label>
+
+          @if (registerForm.controls.password.touched && registerForm.controls.password.hasError('minlength')) {
+            <p class="error">Password must be at least 8 characters.</p>
+          }
+
+          @if (registerForm.controls.confirmPassword.touched && registerForm.hasError('passwordsMismatch')) {
+            <p class="error">Passwords must match.</p>
+          }
+
+          @if (registrationMessage) {
+            <p class="success">{{ registrationMessage }}</p>
+          }
+
+          <button class="primary-action" type="submit">Register</button>
+        </form>
+      }
+    </section>
+  </section>
+</main>
