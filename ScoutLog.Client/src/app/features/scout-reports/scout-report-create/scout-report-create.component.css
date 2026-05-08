@@ -89,6 +89,25 @@ textarea {
   gap: 12px;
 }
 
+.context-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.context-grid label.highlight {
+  color: #0f766e;
+}
+
+.context-grid label.highlight input {
+  border-color: #99f6e4;
+  background: #f0fdfa;
+}
+
 button {
   min-height: 48px;
   border: 0;
@@ -207,6 +226,10 @@ button:disabled {
   }
 
   .score-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .context-grid {
     grid-template-columns: 1fr;
   }
 }

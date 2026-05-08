@@ -18,6 +18,10 @@ export interface LatestScoutReport {
   id: number;
   playerId: number;
   playerName: string;
+  reportType: 'Match' | 'Training';
+  eventDate: string;
+  opponent: string | null;
+  observedPosition: string | null;
   title: string;
   potentialScore: number;
   overallScore: number;

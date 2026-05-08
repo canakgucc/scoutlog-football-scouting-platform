@@ -141,6 +141,11 @@ public class ScoutLogDbContext(DbContextOptions<ScoutLogDbContext> options) : Db
         {
             entity.ToTable("ScoutReports");
             entity.HasKey(report => report.Id);
+            entity.Property(report => report.ReportType).HasMaxLength(20).HasDefaultValue("Match").IsRequired();
+            entity.Property(report => report.EventDate).IsRequired();
+            entity.Property(report => report.Opponent).HasMaxLength(120);
+            entity.Property(report => report.Competition).HasMaxLength(120);
+            entity.Property(report => report.ObservedPosition).HasMaxLength(60);
             entity.Property(report => report.Title).HasMaxLength(160).IsRequired();
             entity.Property(report => report.ObservationText).IsRequired();
             entity.Property(report => report.Recommendation).HasMaxLength(80).IsRequired();
@@ -369,7 +374,13 @@ public class ScoutLogDbContext(DbContextOptions<ScoutLogDbContext> options) : Db
             SuggestedScore = (int?)null,
             Tags = (string?)null,
             DevelopmentAdvice = (string?)null,
-            CreatedAt = seedDate
+            CreatedAt = seedDate,
+            ReportType = "Match",
+            EventDate = seedDate,
+            Opponent = "Galatasaray U19",
+            Competition = "U19 Elite League",
+            MinutesPlayed = (int?)72,
+            ObservedPosition = "Winger"
         });
 
         modelBuilder.Entity<Player>().HasData(CreateAdditionalDemoPlayers());
@@ -576,7 +587,54 @@ public class ScoutLogDbContext(DbContextOptions<ScoutLogDbContext> options) : Db
             SuggestedScore = suggestedScore,
             Tags = tags,
             DevelopmentAdvice = developmentAdvice,
-            CreatedAt = createdAt
+            CreatedAt = createdAt,
+            ReportType = ReportTypeForReport(id),
+            EventDate = createdAt.Date,
+            Opponent = ReportTypeForReport(id) == "Match" ? OpponentForPlayer(playerId) : null,
+            Competition = ReportTypeForReport(id) == "Match" ? CompetitionForReport(id) : "Academy Training",
+            MinutesPlayed = ReportTypeForReport(id) == "Match" ? MinutesForReport(id) : (int?)null,
+            ObservedPosition = ObservedPositionForPlayer(playerId)
+        };
+    }
+
+    private static string ReportTypeForReport(int reportId)
+    {
+        return reportId % 5 == 0 ? "Training" : "Match";
+    }
+
+    private static string OpponentForPlayer(int playerId)
+    {
+        return ClubIdForPlayer(playerId) switch
+        {
+            1 => "Kasımpaşa U19",
+            2 => "Başakşehir U19",
+            _ => "Trabzonspor U19"
+        };
+    }
+
+    private static string CompetitionForReport(int reportId)
+    {
+        return reportId % 3 == 0 ? "U19 Elite League" : "Academy Friendly";
+    }
+
+    private static int MinutesForReport(int reportId)
+    {
+        return 55 + reportId % 36;
+    }
+
+    private static string ObservedPositionForPlayer(int playerId)
+    {
+        return playerId switch
+        {
+            1001 or 1013 => "Goalkeeper",
+            1002 or 1003 or 1014 => "Centre Back",
+            1004 or 1021 => "Left Back",
+            1005 or 1022 => "Right Back",
+            1006 or 1015 => "Defensive Midfielder",
+            1007 or 1016 or 1023 => "Central Midfielder",
+            1008 or 1017 => "Attacking Midfielder",
+            1009 or 1010 or 1018 or 1019 => "Winger",
+            _ => "Striker"
         };
     }
 

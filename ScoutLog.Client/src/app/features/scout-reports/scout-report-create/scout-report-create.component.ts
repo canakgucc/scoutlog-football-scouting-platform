@@ -4,7 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { Player } from '../../players/player.models';
 import { PlayerService } from '../../players/player.service';
-import { ScoutReport } from '../scout-report.models';
+import { ReportType, ScoutReport } from '../scout-report.models';
 import { ScoutReportService } from '../scout-report.service';
 
 @Component({
@@ -25,9 +25,16 @@ export class ScoutReportCreateComponent implements OnInit {
   readonly errorMessage = signal('');
   readonly successMessage = signal('');
   readonly createdReport = signal<ScoutReport | null>(null);
+  readonly reportTypes: ReportType[] = ['Match', 'Training'];
 
   readonly form = this.formBuilder.nonNullable.group({
     playerId: [0, [Validators.required, Validators.min(1)]],
+    reportType: ['Match' as ReportType, [Validators.required]],
+    eventDate: [this.todayInputValue(), [Validators.required]],
+    opponent: [''],
+    competition: [''],
+    minutesPlayed: [90 as number | null, [Validators.min(0), Validators.max(120)]],
+    observedPosition: [''],
     title: ['Demo scout report', [Validators.required, Validators.maxLength(160)]],
     observationText: [
       'Oyuncu bugün çok hızlı ve çabuktu. Sağ kanatta etkili sprintler attı, pas kalitesi iyiydi ve bir asist yaptı. Ancak savunma dönüşlerinde geç kaldı ve bazı pozisyonlarda karar verme konusunda riskli tercihler yaptı.',
@@ -42,6 +49,9 @@ export class ScoutReportCreateComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.form.controls.playerId.valueChanges.subscribe((playerId) =>
+      this.fillObservedPositionFromPlayer(playerId)
+    );
     this.loadPlayers();
   }
 
@@ -63,6 +73,7 @@ export class ScoutReportCreateComponent implements OnInit {
 
           if (selectedPlayerId && this.form.controls.playerId.value === 0) {
             this.form.controls.playerId.setValue(selectedPlayerId);
+            this.fillObservedPositionFromPlayer(selectedPlayerId);
           }
         },
         error: () => this.errorMessage.set('Players could not be loaded.')
@@ -81,7 +92,7 @@ export class ScoutReportCreateComponent implements OnInit {
     this.createdReport.set(null);
 
     this.scoutReportService
-      .createReport(this.form.getRawValue())
+      .createReport(this.buildRequest())
       .pipe(finalize(() => this.isSubmitting.set(false)))
       .subscribe({
         next: (report) => {
@@ -101,5 +112,39 @@ export class ScoutReportCreateComponent implements OnInit {
 
   scorePercent(score: number | null): number {
     return Math.max(0, Math.min(100, (score ?? 0) * 10));
+  }
+
+  isMatchReport(): boolean {
+    return this.form.controls.reportType.value === 'Match';
+  }
+
+  private buildRequest() {
+    const value = this.form.getRawValue();
+
+    return {
+      ...value,
+      opponent: this.optionalText(value.opponent),
+      competition: this.optionalText(value.competition),
+      observedPosition: this.optionalText(value.observedPosition),
+      minutesPlayed: value.minutesPlayed === null ? null : Number(value.minutesPlayed)
+    };
+  }
+
+  private fillObservedPositionFromPlayer(playerId: number): void {
+    const player = this.players().find((item) => item.id === Number(playerId));
+
+    if (!player || this.form.controls.observedPosition.value.trim()) {
+      return;
+    }
+
+    this.form.controls.observedPosition.setValue(player.position);
+  }
+
+  private todayInputValue(): string {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  private optionalText(value: string): string | null {
+    return value.trim() ? value.trim() : null;
   }
 }

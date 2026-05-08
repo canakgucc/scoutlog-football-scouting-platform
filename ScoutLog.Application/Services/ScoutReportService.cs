@@ -13,6 +13,8 @@ public class ScoutReportService(
     IReportAnalysisService reportAnalysisService,
     ICurrentUserContext currentUserContext) : IScoutReportService
 {
+    private static readonly string[] ValidReportTypes = ["Match", "Training"];
+
     public async Task<IReadOnlyList<ScoutReportDto>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         var reports = await scoutReportRepository.GetAllAsync(cancellationToken);
@@ -20,7 +22,8 @@ public class ScoutReportService(
 
         return reports
             .Where(report => activePlayerIds.Contains(report.PlayerId))
-            .OrderByDescending(report => report.CreatedAt)
+            .OrderByDescending(report => report.EventDate)
+            .ThenByDescending(report => report.CreatedAt)
             .Select(MapToDto)
             .ToList();
     }
@@ -71,10 +74,17 @@ public class ScoutReportService(
         await EnsureScoutExistsAsync(currentUserContext.UserId, cancellationToken);
 
         var analysis = reportAnalysisService.Analyze(request.ObservationText);
+        var reportType = NormalizeReportType(request.ReportType);
         var report = new ScoutReport
         {
             PlayerId = request.PlayerId,
             ScoutId = currentUserContext.UserId,
+            ReportType = reportType,
+            EventDate = request.EventDate,
+            Opponent = TrimOptional(request.Opponent),
+            Competition = TrimOptional(request.Competition),
+            MinutesPlayed = request.MinutesPlayed,
+            ObservedPosition = TrimOptional(request.ObservedPosition),
             Title = request.Title.Trim(),
             ObservationText = request.ObservationText.Trim(),
             TechnicalScore = request.TechnicalScore,
@@ -130,7 +140,14 @@ public class ScoutReportService(
         }
 
         var analysis = reportAnalysisService.Analyze(request.ObservationText);
+        var reportType = NormalizeReportType(request.ReportType);
 
+        report.ReportType = reportType;
+        report.EventDate = request.EventDate;
+        report.Opponent = TrimOptional(request.Opponent);
+        report.Competition = TrimOptional(request.Competition);
+        report.MinutesPlayed = request.MinutesPlayed;
+        report.ObservedPosition = TrimOptional(request.ObservedPosition);
         report.Title = request.Title.Trim();
         report.ObservationText = request.ObservationText.Trim();
         report.TechnicalScore = request.TechnicalScore;
@@ -280,6 +297,12 @@ public class ScoutReportService(
             report.Id,
             report.PlayerId,
             report.ScoutId,
+            report.ReportType,
+            report.EventDate,
+            report.Opponent,
+            report.Competition,
+            report.MinutesPlayed,
+            report.ObservedPosition,
             report.Title,
             report.ObservationText,
             report.TechnicalScore,
@@ -314,7 +337,10 @@ public class ScoutReportService(
             request.TacticalScore,
             request.MentalScore,
             request.PotentialScore,
-            request.Recommendation);
+            request.Recommendation,
+            request.ReportType,
+            request.EventDate,
+            request.MinutesPlayed);
     }
 
     private static void ValidateScoutReport(UpdateScoutReportDto request)
@@ -327,7 +353,10 @@ public class ScoutReportService(
             request.TacticalScore,
             request.MentalScore,
             request.PotentialScore,
-            request.Recommendation);
+            request.Recommendation,
+            request.ReportType,
+            request.EventDate,
+            request.MinutesPlayed);
     }
 
     private static void ValidateSharedScoutReportFields(
@@ -338,13 +367,29 @@ public class ScoutReportService(
         int tacticalScore,
         int mentalScore,
         int potentialScore,
-        string recommendation)
+        string recommendation,
+        string reportType,
+        DateTime eventDate,
+        int? minutesPlayed)
     {
         if (string.IsNullOrWhiteSpace(title)
             || string.IsNullOrWhiteSpace(observationText)
-            || string.IsNullOrWhiteSpace(recommendation))
+            || string.IsNullOrWhiteSpace(recommendation)
+            || string.IsNullOrWhiteSpace(reportType))
         {
             throw new ArgumentException("Required scout report fields cannot be empty.");
+        }
+
+        _ = NormalizeReportType(reportType);
+
+        if (eventDate == default)
+        {
+            throw new ArgumentException("Event date is required.");
+        }
+
+        if (minutesPlayed is < 0 or > 120)
+        {
+            throw new ArgumentException("Minutes played must be between 0 and 120.");
         }
 
         if (observationText.Trim().Length < 20)
@@ -376,5 +421,18 @@ public class ScoutReportService(
     private static string JoinAnalysisValues(IEnumerable<string> values)
     {
         return string.Join("; ", values);
+    }
+
+    private static string NormalizeReportType(string reportType)
+    {
+        var normalized = ValidReportTypes.FirstOrDefault(value =>
+            string.Equals(value, reportType.Trim(), StringComparison.OrdinalIgnoreCase));
+
+        return normalized ?? throw new ArgumentException("Report type must be either Match or Training.");
+    }
+
+    private static string? TrimOptional(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
     }
 }

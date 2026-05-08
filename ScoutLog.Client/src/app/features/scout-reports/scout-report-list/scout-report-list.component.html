@@ -59,9 +59,17 @@
           <div class="report-head">
             <div>
               <strong>{{ report.title }}</strong>
-              <span>{{ playerName(report.playerId) }} · {{ report.createdAt | date: 'MMM d, y' }}</span>
+              <span>{{ playerName(report.playerId) }} · {{ report.eventDate | date: 'MMM d, y' }}</span>
             </div>
             <b>{{ report.potentialScore }}</b>
+          </div>
+
+          <div class="context-row">
+            <span class="type-badge">{{ report.reportType }}</span>
+            <span>{{ reportContext(report) }}</span>
+            @if (report.minutesPlayed !== null) {
+              <span>{{ report.minutesPlayed }} min</span>
+            }
           </div>
 
           <p>{{ report.analysisSummary || report.observationText }}</p>

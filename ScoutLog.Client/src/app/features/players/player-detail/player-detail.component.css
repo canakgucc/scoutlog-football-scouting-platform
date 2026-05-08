@@ -561,7 +561,8 @@ h2 {
 }
 
 .report-row span,
-.report-row p {
+.report-row p,
+.report-context {
   margin-top: 5px;
 }
 

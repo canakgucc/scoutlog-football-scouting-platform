@@ -336,6 +336,17 @@ export class PlayerDetailComponent implements OnInit {
     return delta > 0 ? `+${delta}` : `${delta}`;
   }
 
+  reportContext(report: ScoutReport): string {
+    const opponent =
+      report.reportType === 'Training'
+        ? report.opponent || 'Training session'
+        : report.opponent || 'Opponent not set';
+    const position = report.observedPosition ? ` · ${report.observedPosition}` : '';
+    const minutes = report.minutesPlayed !== null ? ` · ${report.minutesPlayed} min` : '';
+
+    return `${report.reportType} · ${opponent}${position}${minutes}`;
+  }
+
   photoSource(player: Player): string | null {
     if (this.hasBrokenPhoto()) {
       return null;

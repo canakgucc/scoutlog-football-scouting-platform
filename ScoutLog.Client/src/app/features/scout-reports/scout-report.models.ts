@@ -2,6 +2,12 @@ export interface ScoutReport {
   id: number;
   playerId: number;
   scoutId: number;
+  reportType: ReportType;
+  eventDate: string;
+  opponent: string | null;
+  competition: string | null;
+  minutesPlayed: number | null;
+  observedPosition: string | null;
   title: string;
   observationText: string;
   technicalScore: number;
@@ -23,6 +29,12 @@ export interface ScoutReport {
 
 export interface CreateScoutReportRequest {
   playerId: number;
+  reportType: ReportType;
+  eventDate: string;
+  opponent: string | null;
+  competition: string | null;
+  minutesPlayed: number | null;
+  observedPosition: string | null;
   title: string;
   observationText: string;
   technicalScore: number;
@@ -32,3 +44,5 @@ export interface CreateScoutReportRequest {
   potentialScore: number;
   recommendation: string;
 }
+
+export type ReportType = 'Match' | 'Training';

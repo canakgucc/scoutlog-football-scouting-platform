@@ -110,6 +110,10 @@
               <div>
                 <strong>{{ report.playerName }}</strong>
                 <span>{{ report.title }}</span>
+                <small>{{ report.reportType }} · {{ report.eventDate | date: 'MMM d' }} · {{ report.opponent || 'Training session' }}</small>
+                @if (report.observedPosition) {
+                  <small>{{ report.observedPosition }}</small>
+                }
               </div>
               <div class="row-meta">
                 <b>{{ report.potentialScore }}</b>

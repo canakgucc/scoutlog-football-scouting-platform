@@ -10,6 +10,25 @@ public class CreateScoutReportDto
     public int? ScoutId { get; set; }
 
     [Required]
+    [StringLength(20)]
+    public string ReportType { get; set; } = "Match";
+
+    [Required]
+    public DateTime EventDate { get; set; }
+
+    [StringLength(120)]
+    public string? Opponent { get; set; }
+
+    [StringLength(120)]
+    public string? Competition { get; set; }
+
+    [Range(0, 120)]
+    public int? MinutesPlayed { get; set; }
+
+    [StringLength(60)]
+    public string? ObservedPosition { get; set; }
+
+    [Required]
     [StringLength(160)]
     public string Title { get; set; } = string.Empty;
 

@@ -32,7 +32,8 @@ public class DashboardService(
         var watchlistItems = await watchlistRepository.GetByPlayerIdsAsync(activePlayerIds.ToList(), cancellationToken);
 
         var latestReports = activeReports
-            .OrderByDescending(report => report.CreatedAt)
+            .OrderByDescending(report => report.EventDate)
+            .ThenByDescending(report => report.CreatedAt)
             .Take(6)
             .Select(report => MapLatestReport(report, playersById))
             .ToList();
@@ -40,7 +41,8 @@ public class DashboardService(
         var latestReportPerPlayer = activeReports
             .GroupBy(report => report.PlayerId)
             .Select(group => group
-                .OrderByDescending(report => report.CreatedAt)
+                .OrderByDescending(report => report.EventDate)
+                .ThenByDescending(report => report.CreatedAt)
                 .First())
             .ToList();
 
@@ -102,6 +104,10 @@ public class DashboardService(
             report.Id,
             report.PlayerId,
             GetPlayerName(report.PlayerId, playersById),
+            report.ReportType,
+            report.EventDate,
+            report.Opponent,
+            report.ObservedPosition,
             report.Title,
             report.PotentialScore,
             report.OverallScore,
@@ -135,7 +141,8 @@ public class DashboardService(
         };
 
         return reports
-            .OrderByDescending(report => report.CreatedAt)
+            .OrderByDescending(report => report.EventDate)
+            .ThenByDescending(report => report.CreatedAt)
             .Where(report => warningKeywords.Any(keyword =>
                 Contains(report.ObservationText, keyword)
                 || Contains(report.Weaknesses, keyword)

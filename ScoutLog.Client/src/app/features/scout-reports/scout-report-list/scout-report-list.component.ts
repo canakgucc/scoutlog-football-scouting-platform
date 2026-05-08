@@ -45,6 +45,10 @@ export class ScoutReportListComponent implements OnInit {
         report.strengths ?? '',
         report.weaknesses ?? '',
         report.tags ?? '',
+        report.reportType,
+        report.opponent ?? '',
+        report.competition ?? '',
+        report.observedPosition ?? '',
         playerName
       ]
         .join(' ')
@@ -76,7 +80,9 @@ export class ScoutReportListComponent implements OnInit {
         next: ({ reports, players }) => {
           this.reports.set(
             [...reports].sort(
-              (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+              (a, b) =>
+                new Date(b.eventDate || b.createdAt).getTime() -
+                new Date(a.eventDate || a.createdAt).getTime()
             )
           );
           this.players.set(players);
@@ -107,5 +113,14 @@ export class ScoutReportListComponent implements OnInit {
       .split(';')
       .map((item) => item.trim())
       .filter(Boolean);
+  }
+
+  reportContext(report: ScoutReport): string {
+    const opponent = report.reportType === 'Training'
+      ? report.opponent || 'Training session'
+      : report.opponent || 'Opponent not set';
+    const position = report.observedPosition ? ` · ${report.observedPosition}` : '';
+
+    return `${opponent}${position}`;
   }
 }

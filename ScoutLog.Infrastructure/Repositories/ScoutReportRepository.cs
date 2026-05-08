@@ -15,7 +15,8 @@ public class ScoutReportRepository(ScoutLogDbContext context)
         return await Query()
             .AsNoTracking()
             .Where(report => report.PlayerId == playerId)
-            .OrderByDescending(report => report.CreatedAt)
+            .OrderByDescending(report => report.EventDate)
+            .ThenByDescending(report => report.CreatedAt)
             .ToListAsync(cancellationToken);
     }
 
@@ -26,7 +27,8 @@ public class ScoutReportRepository(ScoutLogDbContext context)
         return await Query()
             .AsNoTracking()
             .Where(report => report.ScoutId == scoutId)
-            .OrderByDescending(report => report.CreatedAt)
+            .OrderByDescending(report => report.EventDate)
+            .ThenByDescending(report => report.CreatedAt)
             .ToListAsync(cancellationToken);
     }
 }

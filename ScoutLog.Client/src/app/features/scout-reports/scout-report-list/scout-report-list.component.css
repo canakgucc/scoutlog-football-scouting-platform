@@ -121,14 +121,16 @@ select {
 }
 
 .score-row,
-.tags {
+.tags,
+.context-row {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 
 .score-row span,
-.tags span {
+.tags span,
+.context-row span {
   border-radius: 999px;
   padding: 6px 9px;
   background: #f1f5f9;
@@ -140,6 +142,11 @@ select {
 .tags .recommendation {
   background: #ecfdf5;
   color: #047857;
+}
+
+.context-row .type-badge {
+  background: #eff6ff;
+  color: #1d4ed8;
 }
 
 .state-card {

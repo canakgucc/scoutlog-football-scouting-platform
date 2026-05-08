@@ -234,7 +234,7 @@
         <div class="timeline-trend-bars">
           @for (point of timelinePoints().slice(-5); track point.report.id) {
             <article>
-              <span>{{ point.report.createdAt | date: 'MMM d' }}</span>
+              <span>{{ (point.report.eventDate || point.report.createdAt) | date: 'MMM d' }}</span>
               <div class="trend-bar">
                 <i [style.height.%]="scorePercent(point.compositeScore)"></i>
               </div>
@@ -290,8 +290,9 @@
               <div class="timeline-content">
                 <div class="timeline-title">
                   <div>
-                    <span>{{ point.report.createdAt | date: 'MMM d, y' }}</span>
+                    <span>{{ (point.report.eventDate || point.report.createdAt) | date: 'MMM d, y' }}</span>
                     <strong>{{ point.report.title }}</strong>
+                    <small>{{ reportContext(point.report) }}</small>
                   </div>
                   <div class="timeline-scores">
                     <b>{{ point.report.potentialScore }}</b>
@@ -320,7 +321,8 @@
             <article class="report-row">
               <div>
                 <strong>{{ report.title }}</strong>
-                <span>{{ report.createdAt | date: 'MMM d, y' }} · {{ report.recommendation }}</span>
+                <span>{{ (report.eventDate || report.createdAt) | date: 'MMM d, y' }} · {{ report.recommendation }}</span>
+                <small class="report-context">{{ reportContext(report) }}</small>
                 <p>{{ report.observationText }}</p>
               </div>
               <div class="report-scores">

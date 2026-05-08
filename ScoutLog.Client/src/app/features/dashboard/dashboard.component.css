@@ -201,12 +201,14 @@ button:hover {
 
 .report-row strong,
 .report-row span,
+.report-row small,
 .player-row strong,
 .player-row span {
   display: block;
 }
 
 .report-row span,
+.report-row small,
 .player-row span,
 .row-meta small {
   margin-top: 4px;

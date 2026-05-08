@@ -22,6 +22,42 @@
         </select>
       </label>
 
+      <div class="context-grid">
+        <label>
+          Report type
+          <select formControlName="reportType">
+            @for (reportType of reportTypes; track reportType) {
+              <option [value]="reportType">{{ reportType }}</option>
+            }
+          </select>
+        </label>
+
+        <label>
+          Event date
+          <input type="date" formControlName="eventDate" />
+        </label>
+
+        <label [class.highlight]="isMatchReport()">
+          Opponent
+          <input type="text" formControlName="opponent" placeholder="Optional for training" />
+        </label>
+
+        <label [class.highlight]="isMatchReport()">
+          Competition
+          <input type="text" formControlName="competition" placeholder="League, friendly, camp" />
+        </label>
+
+        <label>
+          Minutes played
+          <input type="number" min="0" max="120" formControlName="minutesPlayed" />
+        </label>
+
+        <label>
+          Observed position
+          <input type="text" formControlName="observedPosition" />
+        </label>
+      </div>
+
       <label>
         Title
         <input type="text" formControlName="title" />

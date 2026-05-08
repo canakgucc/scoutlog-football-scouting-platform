@@ -3,6 +3,12 @@ namespace ScoutLog.Domain.Entities;
 public class ScoutReport
 {
     public int Id { get; set; }
+    public string ReportType { get; set; } = "Match";
+    public DateTime EventDate { get; set; } = DateTime.UtcNow;
+    public string? Opponent { get; set; }
+    public string? Competition { get; set; }
+    public int? MinutesPlayed { get; set; }
+    public string? ObservedPosition { get; set; }
     public string Title { get; set; } = string.Empty;
     public string ObservationText { get; set; } = string.Empty;
     public int TechnicalScore { get; set; }
