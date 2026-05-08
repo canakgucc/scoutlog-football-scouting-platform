@@ -1,19 +1,21 @@
-<section class="players-page">
-  <div class="page-header">
+<section class="players-page sl-page">
+  <div class="page-header sl-page-header">
     <div>
-      <p class="eyebrow">Squad intelligence</p>
+      <p class="eyebrow sl-eyebrow">Squad intelligence</p>
       <h2>Players</h2>
+      <p class="page-subtitle">Scout, filter, and manage every player profile in the club workspace.</p>
     </div>
     <div class="header-actions">
-      <a routerLink="/players/create">Add Player</a>
-      <button type="button" (click)="loadPlayers()">Refresh</button>
+      <a class="primary-action" routerLink="/players/create">Add Player</a>
+      <button type="button" class="secondary-action" (click)="loadPlayers()">Refresh</button>
     </div>
   </div>
 
-  <section class="filters">
-    <label>
-      Search
+  <section class="filters sl-panel" aria-label="Player filters">
+    <label class="search-field">
+      <span>Search</span>
       <input
+        class="sl-input"
         type="search"
         placeholder="Name, position, nationality"
         [ngModel]="searchTerm()"
@@ -22,8 +24,8 @@
     </label>
 
     <label>
-      Position
-      <select [ngModel]="selectedPosition()" (ngModelChange)="setPosition($event)">
+      <span>Position</span>
+      <select class="sl-select" [ngModel]="selectedPosition()" (ngModelChange)="setPosition($event)">
         @for (position of positions(); track position) {
           <option [value]="position">{{ position }}</option>
         }
@@ -31,8 +33,8 @@
     </label>
 
     <label>
-      Status
-      <select [ngModel]="selectedStatus()" (ngModelChange)="setStatus($event)">
+      <span>Status</span>
+      <select class="sl-select" [ngModel]="selectedStatus()" (ngModelChange)="setStatus($event)">
         <option value="All">All</option>
         <option value="Active">Active</option>
         <option value="Passive">Passive</option>
@@ -40,8 +42,8 @@
     </label>
 
     <label>
-      Pipeline
-      <select [ngModel]="selectedPipelineStatus()" (ngModelChange)="setPipelineStatus($event)">
+      <span>Pipeline</span>
+      <select class="sl-select" [ngModel]="selectedPipelineStatus()" (ngModelChange)="setPipelineStatus($event)">
         <option value="All">All</option>
         @for (pipelineStatus of pipelineStatuses; track pipelineStatus) {
           <option [value]="pipelineStatus">{{ pipelineStatus }}</option>
@@ -50,8 +52,8 @@
     </label>
 
     <label>
-      Priority
-      <select [ngModel]="selectedPriority()" (ngModelChange)="setPriority($event)">
+      <span>Priority</span>
+      <select class="sl-select" [ngModel]="selectedPriority()" (ngModelChange)="setPriority($event)">
         <option value="All">All</option>
         @for (priority of watchlistPriorities; track priority) {
           <option [value]="priority">{{ priority }}</option>
@@ -65,47 +67,62 @@
         [ngModel]="watchlistOnly()"
         (ngModelChange)="setWatchlistOnly($event)"
       />
-      Watchlist only
+      <span>Watchlist only</span>
     </label>
   </section>
 
   @if (isLoading()) {
-    <div class="state-card">
+    <div class="state-card loading-card sl-state-card">
       <span class="loader"></span>
-      <strong>Loading players...</strong>
+      <div>
+        <strong>Loading players...</strong>
+        <small>Preparing squad profiles.</small>
+      </div>
     </div>
   } @else if (errorMessage()) {
-    <div class="state-card error">
-      <strong>{{ errorMessage() }}</strong>
-      <button type="button" (click)="loadPlayers()">Try again</button>
+    <div class="state-card error-card sl-state-card">
+      <div>
+        <strong>{{ errorMessage() }}</strong>
+        <small>Check the API connection and try again.</small>
+      </div>
+      <button type="button" class="secondary-action" (click)="loadPlayers()">Try again</button>
     </div>
   } @else if (filteredPlayers().length === 0) {
-    <div class="state-card">
+    <div class="state-card empty-card sl-state-card">
       <strong>No players match the current filters.</strong>
+      <small>Try clearing a filter or searching another position.</small>
     </div>
   } @else {
     <div class="player-grid">
       @for (player of filteredPlayers(); track player.id) {
-        <article class="player-card">
+        <article class="player-card sl-card">
           <a class="player-card-link" [routerLink]="['/players', player.id]">
-            <div class="avatar">
-              @if (photoSource(player); as photo) {
-                <img
-                  [src]="photo"
-                  [alt]="player.firstName + ' ' + player.lastName"
-                  (error)="onPhotoError(player)"
-                />
-              } @else {
-                <span>{{ player.firstName[0] }}{{ player.lastName[0] }}</span>
-              }
+            <div class="card-top">
+              <div class="avatar">
+                @if (photoSource(player); as photo) {
+                  <img
+                    [src]="photo"
+                    [alt]="player.firstName + ' ' + player.lastName"
+                    (error)="onPhotoError(player)"
+                  />
+                } @else {
+                  <span>{{ player.firstName[0] }}{{ player.lastName[0] }}</span>
+                }
+              </div>
+
+              <div class="player-heading">
+                <strong>{{ player.firstName }} {{ player.lastName }}</strong>
+                <span>{{ player.position }} · {{ player.nationality }}</span>
+              </div>
+
+              <span class="status" [class.passive]="player.status !== 'Active'">{{ player.status }}</span>
             </div>
 
-            <div class="player-main">
-              <div>
-                <strong>{{ player.firstName }} {{ player.lastName }}</strong>
-                <span>{{ player.position }}</span>
-              </div>
-              <span class="status">{{ player.status }}</span>
+            <div class="meta-grid">
+              <span>Age <b>{{ calculateAge(player.birthDate) }}</b></span>
+              <span>Foot <b>{{ player.preferredFoot }}</b></span>
+              <span>Height <b>{{ player.height }} cm</b></span>
+              <span>Weight <b>{{ player.weight }} kg</b></span>
             </div>
 
             <div class="badge-row">
@@ -115,20 +132,14 @@
               }
               @if (player.watchlistPriority; as priority) {
                 <span class="priority-badge" [class.high]="priority === 'High'" [class.medium]="priority === 'Medium'">
-                  {{ priority }}
+                  {{ priority }} priority
                 </span>
               }
-            </div>
-
-            <div class="meta-grid">
-              <span>Age <b>{{ calculateAge(player.birthDate) }}</b></span>
-              <span>Foot <b>{{ player.preferredFoot }}</b></span>
-              <span>Height <b>{{ player.height }} cm</b></span>
-              <span>Weight <b>{{ player.weight }} kg</b></span>
             </div>
           </a>
 
           <div class="card-actions">
+            <span class="profile-hint">Open profile</span>
             <button
               class="delete-button"
               type="button"
@@ -147,7 +158,7 @@
     <div class="modal-backdrop" role="presentation">
       <section class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-player-title">
         <div>
-          <p class="eyebrow">Delete player</p>
+          <p class="eyebrow sl-eyebrow">Delete player</p>
           <h3 id="delete-player-title">{{ player.firstName }} {{ player.lastName }}</h3>
         </div>
 

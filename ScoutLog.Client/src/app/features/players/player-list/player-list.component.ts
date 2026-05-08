@@ -8,6 +8,7 @@ import { PlayerService } from '../player.service';
 
 @Component({
   selector: 'app-player-list',
+  standalone: true,
   imports: [FormsModule, RouterLink],
   templateUrl: './player-list.component.html',
   styleUrl: './player-list.component.css'
