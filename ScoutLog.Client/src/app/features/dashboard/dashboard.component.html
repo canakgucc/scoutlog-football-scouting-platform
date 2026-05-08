@@ -1,133 +1,207 @@
-<section class="dashboard">
-  <div class="page-header">
+<section class="dashboard sl-page">
+  <div class="page-header sl-page-header">
     <div>
-      <p class="eyebrow">Performance command center</p>
+      <p class="eyebrow sl-eyebrow">Performance command center</p>
       <h2>Dashboard</h2>
+      <p class="page-subtitle">Live scouting intelligence, pipeline health, and academy performance signals.</p>
     </div>
-    <button type="button" (click)="loadDashboard()">Refresh</button>
+    <div class="header-actions">
+      <span class="sync-pill">SQL live data</span>
+      <button type="button" class="refresh-button" (click)="loadDashboard()">Refresh</button>
+    </div>
   </div>
 
   @if (isLoading()) {
-    <div class="state-card">
+    <div class="state-card loading-card sl-state-card">
       <span class="loader"></span>
-      <strong>Loading dashboard data...</strong>
+      <div>
+        <strong>Loading dashboard data...</strong>
+        <small>Preparing club scouting metrics.</small>
+      </div>
     </div>
   } @else if (errorMessage()) {
-    <div class="state-card error">
-      <strong>{{ errorMessage() }}</strong>
-      <button type="button" (click)="loadDashboard()">Try again</button>
+    <div class="state-card error-card sl-state-card">
+      <div>
+        <strong>{{ errorMessage() }}</strong>
+        <small>Check the API connection and try again.</small>
+      </div>
+      <button type="button" class="refresh-button" (click)="loadDashboard()">Try again</button>
     </div>
   } @else if (summary(); as summary) {
     <div class="stat-grid">
-      <article class="stat-card">
-        <span>Total Players</span>
-        <strong>{{ summary.totalPlayers }}</strong>
+      <article class="stat-card sl-card">
+        <span class="stat-icon">P</span>
+        <div>
+          <span>Total Players</span>
+          <strong>{{ summary.totalPlayers }}</strong>
+          <small>Registered squad profiles</small>
+        </div>
       </article>
-      <article class="stat-card">
-        <span>Total Scout Reports</span>
-        <strong>{{ summary.totalScoutReports }}</strong>
+      <article class="stat-card sl-card">
+        <span class="stat-icon">R</span>
+        <div>
+          <span>Total Scout Reports</span>
+          <strong>{{ summary.totalScoutReports }}</strong>
+          <small>Match and training observations</small>
+        </div>
       </article>
-      <article class="stat-card accent">
-        <span>Average Potential Score</span>
-        <strong>{{ summary.averagePotentialScore | number: '1.1-1' }}</strong>
+      <article class="stat-card accent sl-card">
+        <span class="stat-icon">★</span>
+        <div>
+          <span>Average Potential Score</span>
+          <strong>{{ summary.averagePotentialScore | number: '1.1-1' }}</strong>
+          <small>Club-wide potential average</small>
+        </div>
       </article>
-      <article class="stat-card">
-        <span>Players To Watch</span>
-        <strong>{{ summary.playersToWatchCount }}</strong>
+      <article class="stat-card sl-card">
+        <span class="stat-icon">W</span>
+        <div>
+          <span>Players To Watch</span>
+          <strong>{{ summary.playersToWatchCount }}</strong>
+          <small>Active watchlist candidates</small>
+        </div>
       </article>
     </div>
 
     <div class="score-grid">
-      <article class="score-card">
-        <span>Technical</span>
-        <strong>{{ summary.averageTechnicalScore | number: '1.1-1' }}</strong>
+      <article class="score-card sl-card">
+        <div>
+          <span>Technical</span>
+          <strong>{{ summary.averageTechnicalScore | number: '1.1-1' }}</strong>
+        </div>
         <div class="meter"><i [style.width.%]="scorePercent(summary.averageTechnicalScore)"></i></div>
       </article>
-      <article class="score-card">
-        <span>Physical</span>
-        <strong>{{ summary.averagePhysicalScore | number: '1.1-1' }}</strong>
+      <article class="score-card sl-card">
+        <div>
+          <span>Physical</span>
+          <strong>{{ summary.averagePhysicalScore | number: '1.1-1' }}</strong>
+        </div>
         <div class="meter"><i [style.width.%]="scorePercent(summary.averagePhysicalScore)"></i></div>
       </article>
-      <article class="score-card">
-        <span>Tactical</span>
-        <strong>{{ summary.averageTacticalScore | number: '1.1-1' }}</strong>
+      <article class="score-card sl-card">
+        <div>
+          <span>Tactical</span>
+          <strong>{{ summary.averageTacticalScore | number: '1.1-1' }}</strong>
+        </div>
         <div class="meter"><i [style.width.%]="scorePercent(summary.averageTacticalScore)"></i></div>
       </article>
-      <article class="score-card">
-        <span>Mental</span>
-        <strong>{{ summary.averageMentalScore | number: '1.1-1' }}</strong>
+      <article class="score-card sl-card">
+        <div>
+          <span>Mental</span>
+          <strong>{{ summary.averageMentalScore | number: '1.1-1' }}</strong>
+        </div>
         <div class="meter"><i [style.width.%]="scorePercent(summary.averageMentalScore)"></i></div>
       </article>
     </div>
 
-    <section class="panel pipeline-panel">
+    <section class="panel pipeline-panel sl-panel">
       <div class="panel-header">
-        <h3>Talent Pipeline</h3>
-        <span>{{ summary.pipelineSummary.totalWatchlistCount }} watchlisted</span>
+        <div>
+          <p class="panel-kicker">Talent flow</p>
+          <h3>Talent Pipeline</h3>
+        </div>
+        <span class="panel-pill">{{ summary.pipelineSummary.totalWatchlistCount }} watchlisted</span>
       </div>
 
       <div class="pipeline-summary-grid">
         <article>
           <span>New</span>
           <strong>{{ summary.pipelineSummary.newCount }}</strong>
+          <div class="pipeline-bar">
+            <i [style.width.%]="summary.totalPlayers ? (summary.pipelineSummary.newCount / summary.totalPlayers) * 100 : 0"></i>
+          </div>
         </article>
         <article>
           <span>Under Observation</span>
           <strong>{{ summary.pipelineSummary.underObservationCount }}</strong>
+          <div class="pipeline-bar">
+            <i [style.width.%]="summary.totalPlayers ? (summary.pipelineSummary.underObservationCount / summary.totalPlayers) * 100 : 0"></i>
+          </div>
         </article>
         <article>
           <span>Follow-up Needed</span>
           <strong>{{ summary.pipelineSummary.followUpNeededCount }}</strong>
+          <div class="pipeline-bar">
+            <i [style.width.%]="summary.totalPlayers ? (summary.pipelineSummary.followUpNeededCount / summary.totalPlayers) * 100 : 0"></i>
+          </div>
         </article>
         <article>
           <span>Shortlisted</span>
           <strong>{{ summary.pipelineSummary.shortlistedCount }}</strong>
+          <div class="pipeline-bar">
+            <i [style.width.%]="summary.totalPlayers ? (summary.pipelineSummary.shortlistedCount / summary.totalPlayers) * 100 : 0"></i>
+          </div>
         </article>
         <article>
           <span>Recommended</span>
           <strong>{{ summary.pipelineSummary.recommendedCount }}</strong>
+          <div class="pipeline-bar">
+            <i [style.width.%]="summary.totalPlayers ? (summary.pipelineSummary.recommendedCount / summary.totalPlayers) * 100 : 0"></i>
+          </div>
         </article>
         <article>
           <span>Rejected</span>
           <strong>{{ summary.pipelineSummary.rejectedCount }}</strong>
+          <div class="pipeline-bar muted">
+            <i [style.width.%]="summary.totalPlayers ? (summary.pipelineSummary.rejectedCount / summary.totalPlayers) * 100 : 0"></i>
+          </div>
         </article>
         <article class="watchlist-stat">
-          <span>High Priority Watchlist</span>
+          <span>Total Watchlist</span>
+          <strong>{{ summary.pipelineSummary.totalWatchlistCount }}</strong>
+          <small>Tracked targets</small>
+        </article>
+        <article class="watchlist-stat priority">
+          <span>High Priority</span>
           <strong>{{ summary.pipelineSummary.highPriorityWatchlistCount }}</strong>
+          <small>Immediate attention</small>
         </article>
       </div>
     </section>
 
     <div class="dashboard-grid">
-      <section class="panel latest">
+      <section class="panel latest sl-panel">
         <div class="panel-header">
-          <h3>Latest Scout Reports</h3>
-          <span>{{ summary.latestScoutReports.length }} reports</span>
+          <div>
+            <p class="panel-kicker">Recent intelligence</p>
+            <h3>Latest Scout Reports</h3>
+          </div>
+          <span class="panel-pill">{{ summary.latestScoutReports.length }} reports</span>
         </div>
         <div class="report-list">
           @for (report of summary.latestScoutReports; track report.id) {
             <article class="report-row">
-              <div>
-                <strong>{{ report.playerName }}</strong>
+              <div class="report-main">
+                <div class="report-title-row">
+                  <strong>{{ report.playerName }}</strong>
+                  <span class="sl-badge" [class.sl-badge-info]="report.reportType === 'Training'">{{ report.reportType }}</span>
+                </div>
                 <span>{{ report.title }}</span>
-                <small>{{ report.reportType }} · {{ report.eventDate | date: 'MMM d' }} · {{ report.opponent || 'Training session' }}</small>
-                @if (report.observedPosition) {
-                  <small>{{ report.observedPosition }}</small>
-                }
+                <small>
+                  {{ report.eventDate | date: 'MMM d, y' }} · {{ report.opponent || 'Training session' }}
+                  @if (report.observedPosition) {
+                    · {{ report.observedPosition }}
+                  }
+                </small>
+                <em>{{ report.recommendation }}</em>
               </div>
               <div class="row-meta">
+                <small>Potential</small>
                 <b>{{ report.potentialScore }}</b>
-                <small>{{ report.createdAt | date: 'MMM d' }}</small>
+                <span>{{ report.createdAt | date: 'MMM d' }}</span>
               </div>
             </article>
           }
         </div>
       </section>
 
-      <section class="panel">
+      <section class="panel sl-panel">
         <div class="panel-header">
-          <h3>Top Potential Players</h3>
-          <span>watchlist</span>
+          <div>
+            <p class="panel-kicker">Talent radar</p>
+            <h3>Top Potential Players</h3>
+          </div>
+          <span class="panel-pill">ranked</span>
         </div>
         <div class="player-list">
           @for (player of summary.topPotentialPlayers; track player.playerId) {
@@ -135,8 +209,12 @@
               <div>
                 <strong>{{ player.fullName }}</strong>
                 <span>{{ player.position }}</span>
+                @if (player.tags) {
+                  <small>{{ player.tags }}</small>
+                }
               </div>
               <div class="potential">
+                <small>Potential</small>
                 <b>{{ player.potentialScore }}</b>
                 <div class="mini-meter">
                   <i [style.width.%]="suggestedScorePercent(player.suggestedScore)"></i>
@@ -147,10 +225,13 @@
         </div>
       </section>
 
-      <section class="panel">
+      <section class="panel sl-panel">
         <div class="panel-header">
-          <h3>Position Distribution</h3>
-          <span>{{ summary.positionDistribution.length }} positions</span>
+          <div>
+            <p class="panel-kicker">Squad shape</p>
+            <h3>Position Distribution</h3>
+          </div>
+          <span class="panel-pill">{{ summary.positionDistribution.length }} positions</span>
         </div>
         <div class="bars">
           @for (item of summary.positionDistribution; track item.position) {
@@ -165,10 +246,13 @@
         </div>
       </section>
 
-      <section class="panel warnings">
+      <section class="panel warnings sl-panel">
         <div class="panel-header">
-          <h3>Recent Performance Warnings</h3>
-          <span>risk signals</span>
+          <div>
+            <p class="panel-kicker">Coaching signals</p>
+            <h3>Recent Performance Warnings</h3>
+          </div>
+          <span class="panel-pill">risk signals</span>
         </div>
         @if (summary.recentPerformanceWarnings.length) {
           <ul>

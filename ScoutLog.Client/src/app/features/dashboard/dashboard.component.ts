@@ -6,6 +6,7 @@ import { DashboardSummary, PositionDistribution } from './dashboard.models';
 
 @Component({
   selector: 'app-dashboard',
+  standalone: true,
   imports: [DatePipe, DecimalPipe],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
