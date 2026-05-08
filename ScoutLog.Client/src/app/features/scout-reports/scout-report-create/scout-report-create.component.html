@@ -63,6 +63,67 @@
         <input type="text" formControlName="title" />
       </label>
 
+      <section class="voice-note-panel">
+        <div class="voice-note-head">
+          <span class="voice-icon" aria-hidden="true"></span>
+          <div>
+            <strong>Voice Note Assistant</strong>
+            <p>Simulated speech-to-text for demo scouting notes.</p>
+          </div>
+        </div>
+
+        <div class="voice-note-controls">
+          <label>
+            Scenario
+            <select
+              [value]="selectedVoiceNoteScenario()"
+              (change)="setVoiceNoteScenario($any($event.target).value)"
+            >
+              @for (scenario of voiceNoteScenarios; track scenario.id) {
+                <option [value]="scenario.id">{{ scenario.label }}</option>
+              }
+            </select>
+          </label>
+
+          <div class="mode-toggle" role="group" aria-label="Voice note insert mode">
+            <button
+              type="button"
+              [class.active]="voiceNoteMode() === 'replace'"
+              (click)="setVoiceNoteMode('replace')"
+            >
+              Replace
+            </button>
+            <button
+              type="button"
+              [class.active]="voiceNoteMode() === 'append'"
+              (click)="setVoiceNoteMode('append')"
+            >
+              Append
+            </button>
+          </div>
+
+          <button type="button" class="simulate-button" (click)="simulateVoiceNote()">
+            Simulate Voice Note
+          </button>
+        </div>
+
+        <p class="voice-note-description">{{ selectedVoiceNoteDescription() }}</p>
+
+        @if (hasObservationText()) {
+          <p class="voice-note-warning">
+            {{
+              voiceNoteMode() === 'replace'
+                ? 'This will replace the current observation text.'
+                : 'This will append to the current observation text.'
+            }}
+          </p>
+        }
+
+        @if (voiceNoteMessage()) {
+          <p class="voice-note-message">{{ voiceNoteMessage() }}</p>
+        }
+      </section>
+
       <label class="wide">
         Observation text
         <textarea rows="7" formControlName="observationText"></textarea>

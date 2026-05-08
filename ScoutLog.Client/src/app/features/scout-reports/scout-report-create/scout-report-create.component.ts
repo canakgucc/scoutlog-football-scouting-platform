@@ -7,6 +7,15 @@ import { PlayerService } from '../../players/player.service';
 import { ReportType, ScoutReport } from '../scout-report.models';
 import { ScoutReportService } from '../scout-report.service';
 
+type VoiceNoteMode = 'replace' | 'append';
+
+interface VoiceNoteScenario {
+  id: string;
+  label: string;
+  description: string;
+  note: string;
+}
+
 @Component({
   selector: 'app-scout-report-create',
   imports: [ReactiveFormsModule, RouterLink],
@@ -26,6 +35,41 @@ export class ScoutReportCreateComponent implements OnInit {
   readonly successMessage = signal('');
   readonly createdReport = signal<ScoutReport | null>(null);
   readonly reportTypes: ReportType[] = ['Match', 'Training'];
+  readonly selectedVoiceNoteScenario = signal('fast-winger');
+  readonly voiceNoteMode = signal<VoiceNoteMode>('replace');
+  readonly voiceNoteMessage = signal('');
+  readonly voiceNoteScenarios: VoiceNoteScenario[] = [
+    {
+      id: 'fast-winger',
+      label: 'Fast winger',
+      description: 'Pace, sprint quality, attacking output',
+      note: 'Oyuncu sağ kanatta çok hızlı ve çabuk göründü. Sprint tekrarlarında rakibini geçti, pas kalitesi fena değildi ve bir asist öncesi doğru koşu yaptı. Ancak savunma dönüşlerinde geç kaldı, karar verme anlarında bazen riskli tercih yaptı.'
+    },
+    {
+      id: 'technical-midfielder',
+      label: 'Technical midfielder',
+      description: 'Passing, vision, tempo control',
+      note: 'Oyuncu merkezde pas kalitesi ve oyun görüşüyle öne çıktı. Dar alanda sakin kaldı, iki kez asist tehdidi yarattı ve takımın temposunu iyi yönetti. Fiziksel temaslarda biraz daha güçlü kalmalı.'
+    },
+    {
+      id: 'defensive-issue',
+      label: 'Defensive issue',
+      description: 'Marking, recovery, awareness',
+      note: 'Oyuncu savunma dönüşlerinde birkaç kez geç kaldı. Markaj paylaşımında pozisyon hatası yaptı ve rakibin koşusunu takip etmekte zorlandı. Topla çıkışta sade oynadı ama savunma farkındalığı gelişmeli.'
+    },
+    {
+      id: 'physical-fatigue',
+      label: 'Physical fatigue',
+      description: 'Conditioning drop and late-game intensity',
+      note: 'Oyuncu ilk bölümde tempolu ve istekliydi fakat ikinci yarıda kondisyon düşüşü yaşadı. Sprint mesafesi azaldı, baskı sonrası toparlanması gecikti ve bazı pozisyonlarda yorulduğu için top kaybı yaptı.'
+    },
+    {
+      id: 'high-potential-striker',
+      label: 'High potential striker',
+      description: 'Finishing, box movement, upside',
+      note: 'Oyuncu santrfor pozisyonunda gol tehdidi ve bitiricilik kalitesiyle dikkat çekti. Ceza sahası koşuları doğruydu, şut tercihleri etkiliydi ve fiziksel olarak güçlü kaldı. Karar verme biraz daha hızlanırsa yüksek potansiyel gösterebilir.'
+    }
+  ];
 
   readonly form = this.formBuilder.nonNullable.group({
     playerId: [0, [Validators.required, Validators.min(1)]],
@@ -118,6 +162,44 @@ export class ScoutReportCreateComponent implements OnInit {
     return this.form.controls.reportType.value === 'Match';
   }
 
+  setVoiceNoteScenario(id: string): void {
+    this.selectedVoiceNoteScenario.set(id);
+    this.voiceNoteMessage.set('');
+  }
+
+  setVoiceNoteMode(mode: VoiceNoteMode): void {
+    this.voiceNoteMode.set(mode);
+    this.voiceNoteMessage.set('');
+  }
+
+  selectedVoiceNoteDescription(): string {
+    return this.selectedVoiceNote()?.description ?? '';
+  }
+
+  hasObservationText(): boolean {
+    return this.form.controls.observationText.value.trim().length > 0;
+  }
+
+  simulateVoiceNote(): void {
+    const scenario = this.selectedVoiceNote();
+
+    if (!scenario) {
+      return;
+    }
+
+    const observationControl = this.form.controls.observationText;
+    const currentText = observationControl.value.trim();
+    const nextText =
+      this.voiceNoteMode() === 'append' && currentText
+        ? `${currentText}\n\n${scenario.note}`
+        : scenario.note;
+
+    observationControl.setValue(nextText);
+    observationControl.markAsDirty();
+    observationControl.updateValueAndValidity();
+    this.voiceNoteMessage.set('Voice note inserted. You can edit it before submitting.');
+  }
+
   private buildRequest() {
     const value = this.form.getRawValue();
 
@@ -146,5 +228,9 @@ export class ScoutReportCreateComponent implements OnInit {
 
   private optionalText(value: string): string | null {
     return value.trim() ? value.trim() : null;
+  }
+
+  private selectedVoiceNote(): VoiceNoteScenario | undefined {
+    return this.voiceNoteScenarios.find((scenario) => scenario.id === this.selectedVoiceNoteScenario());
   }
 }

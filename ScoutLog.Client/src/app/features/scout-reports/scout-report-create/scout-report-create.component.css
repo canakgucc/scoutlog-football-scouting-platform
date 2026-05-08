@@ -108,6 +108,84 @@ textarea {
   background: #f0fdfa;
 }
 
+.voice-note-panel {
+  display: grid;
+  gap: 11px;
+  padding: 14px;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #eff6ff, #f8fafc);
+}
+
+.voice-note-head,
+.voice-note-controls,
+.mode-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.voice-note-head p,
+.voice-note-description,
+.voice-note-warning,
+.voice-note-message {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.voice-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, transparent 35%, #ffffff 35% 45%, transparent 45% 55%, #ffffff 55% 65%, transparent 65%),
+    #0f766e;
+  box-shadow: 0 0 0 5px rgba(15, 118, 110, 0.12);
+}
+
+.voice-note-controls {
+  flex-wrap: wrap;
+}
+
+.voice-note-controls label {
+  min-width: 220px;
+  flex: 1;
+}
+
+.mode-toggle {
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.mode-toggle button,
+.simulate-button {
+  min-height: 40px;
+  padding: 0 12px;
+}
+
+.mode-toggle button {
+  background: transparent;
+  color: var(--muted);
+}
+
+.mode-toggle button.active,
+.simulate-button {
+  background: #0f766e;
+  color: #ffffff;
+}
+
+.voice-note-warning {
+  color: #92400e;
+}
+
+.voice-note-message {
+  color: #047857;
+  font-weight: 750;
+}
+
 button {
   min-height: 48px;
   border: 0;
@@ -231,5 +309,16 @@ button:disabled {
 
   .context-grid {
     grid-template-columns: 1fr;
+  }
+
+  .voice-note-controls,
+  .mode-toggle {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .voice-note-controls label,
+  .simulate-button {
+    width: 100%;
   }
 }
