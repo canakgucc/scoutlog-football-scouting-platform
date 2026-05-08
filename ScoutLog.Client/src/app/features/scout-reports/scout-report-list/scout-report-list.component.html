@@ -1,16 +1,18 @@
-<section class="reports-page">
-  <div class="page-header">
+<section class="reports-page sl-page">
+  <div class="page-header sl-page-header">
     <div>
-      <p class="eyebrow">Scouting intelligence</p>
+      <p class="eyebrow sl-eyebrow">Scouting intelligence</p>
       <h2>Scout Reports</h2>
+      <p class="page-subtitle">Review match notes, training observations, AI-style analysis, and player recommendations.</p>
     </div>
-    <a routerLink="/scout-reports/create">Create report</a>
+    <a class="primary-action" routerLink="/scout-reports/create">Create report</a>
   </div>
 
-  <section class="filters">
-    <label>
-      Search
+  <section class="filters sl-panel" aria-label="Scout report filters">
+    <label class="search-field">
+      <span>Search</span>
       <input
+        class="sl-input"
         type="search"
         placeholder="Player, text, tag, analysis"
         [ngModel]="searchTerm()"
@@ -19,8 +21,8 @@
     </label>
 
     <label>
-      Player
-      <select [ngModel]="selectedPlayerId()" (ngModelChange)="setPlayer($event)">
+      <span>Player</span>
+      <select class="sl-select" [ngModel]="selectedPlayerId()" (ngModelChange)="setPlayer($event)">
         <option value="All">All players</option>
         @for (player of players(); track player.id) {
           <option [value]="player.id">{{ player.firstName }} {{ player.lastName }}</option>
@@ -29,62 +31,96 @@
     </label>
 
     <label>
-      Recommendation
-      <select [ngModel]="selectedRecommendation()" (ngModelChange)="setRecommendation($event)">
+      <span>Recommendation</span>
+      <select class="sl-select" [ngModel]="selectedRecommendation()" (ngModelChange)="setRecommendation($event)">
         @for (recommendation of recommendations(); track recommendation) {
           <option [value]="recommendation">{{ recommendation }}</option>
         }
       </select>
     </label>
+
+    <label>
+      <span>Report type</span>
+      <select class="sl-select" [ngModel]="selectedReportType()" (ngModelChange)="setReportType($event)">
+        <option value="All">All types</option>
+        <option value="Match">Match</option>
+        <option value="Training">Training</option>
+      </select>
+    </label>
   </section>
 
   @if (isLoading()) {
-    <div class="state-card">
+    <div class="state-card loading-card sl-state-card">
       <span class="loader"></span>
-      <strong>Loading scout reports...</strong>
+      <div>
+        <strong>Loading scout reports...</strong>
+        <small>Building the scouting archive.</small>
+      </div>
     </div>
   } @else if (errorMessage()) {
-    <div class="state-card error">
-      <strong>{{ errorMessage() }}</strong>
-      <button type="button" (click)="loadReports()">Try again</button>
+    <div class="state-card error-card sl-state-card">
+      <div>
+        <strong>{{ errorMessage() }}</strong>
+        <small>Check the API connection and try again.</small>
+      </div>
+      <button type="button" class="secondary-action" (click)="loadReports()">Try again</button>
     </div>
   } @else if (filteredReports().length === 0) {
-    <div class="state-card">
+    <div class="state-card empty-card sl-state-card">
       <strong>No scout reports match the current filters.</strong>
+      <small>Try changing the player, recommendation, type, or search term.</small>
     </div>
   } @else {
     <div class="report-grid">
       @for (report of filteredReports(); track report.id) {
-        <article class="report-card">
+        <article class="report-card sl-card">
           <div class="report-head">
-            <div>
+            <div class="report-title-block">
+              <span class="player-name">{{ playerName(report.playerId) }}</span>
               <strong>{{ report.title }}</strong>
-              <span>{{ playerName(report.playerId) }} · {{ report.eventDate | date: 'MMM d, y' }}</span>
             </div>
-            <b>{{ report.potentialScore }}</b>
+            <span class="recommendation-badge">{{ report.recommendation }}</span>
           </div>
 
           <div class="context-row">
-            <span class="type-badge">{{ report.reportType }}</span>
+            <span class="type-badge" [class.training]="report.reportType === 'Training'">{{ report.reportType }}</span>
+            <span>{{ report.eventDate | date: 'MMM d, y' }}</span>
             <span>{{ reportContext(report) }}</span>
             @if (report.minutesPlayed !== null) {
               <span>{{ report.minutesPlayed }} min</span>
             }
           </div>
 
-          <p>{{ report.analysisSummary || report.observationText }}</p>
+          <p class="analysis-summary">{{ report.analysisSummary || report.observationText }}</p>
 
-          <div class="score-row">
-            <span>Tech {{ report.technicalScore }}</span>
-            <span>Phys {{ report.physicalScore }}</span>
-            <span>Tact {{ report.tacticalScore }}</span>
-            <span>Ment {{ report.mentalScore }}</span>
+          <div class="score-grid">
+            <span>Technical <b>{{ report.technicalScore }}</b></span>
+            <span>Physical <b>{{ report.physicalScore }}</b></span>
+            <span>Tactical <b>{{ report.tacticalScore }}</b></span>
+            <span>Mental <b>{{ report.mentalScore }}</b></span>
+            <span class="potential-score">Potential <b>{{ report.potentialScore }}</b></span>
           </div>
 
-          <div class="tags">
-            <span class="recommendation">{{ report.recommendation }}</span>
-            @for (tag of splitValues(report.tags); track tag) {
-              <span>{{ tag }}</span>
+          @if (splitValues(report.tags).length) {
+            <div class="chip-row">
+              @for (tag of splitValues(report.tags); track tag) {
+                <span>{{ tag }}</span>
+              }
+            </div>
+          }
+
+          <div class="insight-grid">
+            @if (splitValues(report.strengths).length) {
+              <div>
+                <small>Strengths</small>
+                <p>{{ splitValues(report.strengths).slice(0, 2).join(', ') }}</p>
+              </div>
+            }
+            @if (splitValues(report.weaknesses).length) {
+              <div>
+                <small>Weaknesses</small>
+                <p>{{ splitValues(report.weaknesses).slice(0, 2).join(', ') }}</p>
+              </div>
             }
           </div>
         </article>

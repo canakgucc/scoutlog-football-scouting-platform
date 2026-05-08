@@ -29,6 +29,7 @@ interface FrequencyItem {
 
 @Component({
   selector: 'app-player-detail',
+  standalone: true,
   imports: [DatePipe, DecimalPipe, FormsModule, RouterLink],
   templateUrl: './player-detail.component.html',
   styleUrl: './player-detail.component.css'

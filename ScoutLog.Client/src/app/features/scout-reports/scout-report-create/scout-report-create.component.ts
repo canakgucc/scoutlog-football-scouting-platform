@@ -18,6 +18,7 @@ interface VoiceNoteScenario {
 
 @Component({
   selector: 'app-scout-report-create',
+  standalone: true,
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './scout-report-create.component.html',
   styleUrl: './scout-report-create.component.css'

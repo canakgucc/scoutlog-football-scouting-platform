@@ -10,6 +10,7 @@ import { ScoutReportService } from '../scout-report.service';
 
 @Component({
   selector: 'app-scout-report-list',
+  standalone: true,
   imports: [DatePipe, FormsModule, RouterLink],
   templateUrl: './scout-report-list.component.html',
   styleUrl: './scout-report-list.component.css'
@@ -25,6 +26,7 @@ export class ScoutReportListComponent implements OnInit {
   readonly searchTerm = signal('');
   readonly selectedPlayerId = signal('All');
   readonly selectedRecommendation = signal('All');
+  readonly selectedReportType = signal('All');
 
   readonly recommendations = computed(() => [
     'All',
@@ -35,6 +37,7 @@ export class ScoutReportListComponent implements OnInit {
     const term = this.searchTerm().trim().toLowerCase();
     const playerId = this.selectedPlayerId();
     const recommendation = this.selectedRecommendation();
+    const reportType = this.selectedReportType();
 
     return this.reports().filter((report) => {
       const playerName = this.playerName(report.playerId).toLowerCase();
@@ -58,8 +61,9 @@ export class ScoutReportListComponent implements OnInit {
       const matchesPlayer = playerId === 'All' || report.playerId === Number(playerId);
       const matchesRecommendation =
         recommendation === 'All' || report.recommendation === recommendation;
+      const matchesReportType = reportType === 'All' || report.reportType === reportType;
 
-      return matchesText && matchesPlayer && matchesRecommendation;
+      return matchesText && matchesPlayer && matchesRecommendation && matchesReportType;
     });
   });
 
@@ -101,6 +105,10 @@ export class ScoutReportListComponent implements OnInit {
 
   setRecommendation(value: string): void {
     this.selectedRecommendation.set(value);
+  }
+
+  setReportType(value: string): void {
+    this.selectedReportType.set(value);
   }
 
   playerName(playerId: number): string {

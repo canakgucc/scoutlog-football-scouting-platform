@@ -27,6 +27,7 @@ interface ScoreAverages {
 
 @Component({
   selector: 'app-player-comparison',
+  standalone: true,
   imports: [FormsModule],
   templateUrl: './player-comparison.component.html',
   styleUrl: './player-comparison.component.css'

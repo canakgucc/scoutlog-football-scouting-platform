@@ -8,6 +8,7 @@ import { PlayerService } from '../player.service';
 
 @Component({
   selector: 'app-player-create',
+  standalone: true,
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './player-create.component.html',
   styleUrl: './player-create.component.css'
