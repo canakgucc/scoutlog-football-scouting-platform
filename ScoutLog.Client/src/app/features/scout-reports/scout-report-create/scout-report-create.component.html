@@ -1,68 +1,163 @@
-<section class="create-page">
-  <div class="page-header">
+<section class="create-page sl-page">
+  <div class="page-header sl-page-header">
     <div>
-      <p class="eyebrow">Live analysis</p>
+      <p class="eyebrow sl-eyebrow">Live analysis</p>
       <h2>Create Scout Report</h2>
+      <p class="page-subtitle">Capture match context, scouting notes, scores, and generate rule-based analysis.</p>
     </div>
-    <a routerLink="/scout-reports">Back to reports</a>
+    <a class="back-action" routerLink="/scout-reports">Back to reports</a>
   </div>
 
   <div class="layout-grid">
     <form class="report-form" [formGroup]="form" (ngSubmit)="submit()">
-      <label>
-        Player
-        <select formControlName="playerId">
-          @if (isLoadingPlayers()) {
-            <option [ngValue]="0">Loading players...</option>
-          } @else {
-            @for (player of players(); track player.id) {
-              <option [ngValue]="player.id">{{ player.firstName }} {{ player.lastName }} · {{ player.position }}</option>
-            }
-          }
-        </select>
-      </label>
+      <section class="form-section">
+        <div class="section-head">
+          <span class="section-index">01</span>
+          <div>
+            <h3>Player & Context</h3>
+            <p>Select the player and define the observation type.</p>
+          </div>
+        </div>
 
-      <div class="context-grid">
+        <div class="field-grid two">
+          <label>
+            <span>Player</span>
+            <select class="sl-select" formControlName="playerId">
+              @if (isLoadingPlayers()) {
+                <option [ngValue]="0">Loading players...</option>
+              } @else {
+                @for (player of players(); track player.id) {
+                  <option [ngValue]="player.id">{{ player.firstName }} {{ player.lastName }} · {{ player.position }}</option>
+                }
+              }
+            </select>
+          </label>
+
+          <label>
+            <span>Report type</span>
+            <select class="sl-select" formControlName="reportType">
+              @for (reportType of reportTypes; track reportType) {
+                <option [value]="reportType">{{ reportType }}</option>
+              }
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="section-head">
+          <span class="section-index">02</span>
+          <div>
+            <h3>Match / Training Details</h3>
+            <p>Keep the report grounded in real match or training context.</p>
+          </div>
+        </div>
+
+        <div class="field-grid three">
+          <label>
+            <span>Event date</span>
+            <input class="sl-input" type="date" formControlName="eventDate" />
+          </label>
+
+          <label [class.highlight]="isMatchReport()">
+            <span>Opponent</span>
+            <input class="sl-input" type="text" formControlName="opponent" placeholder="Optional for training" />
+          </label>
+
+          <label [class.highlight]="isMatchReport()">
+            <span>Competition</span>
+            <input class="sl-input" type="text" formControlName="competition" placeholder="League, friendly, camp" />
+          </label>
+
+          <label>
+            <span>Minutes played</span>
+            <input class="sl-input" type="number" min="0" max="120" formControlName="minutesPlayed" />
+          </label>
+
+          <label>
+            <span>Observed position</span>
+            <input class="sl-input" type="text" formControlName="observedPosition" />
+          </label>
+
+          <label>
+            <span>Recommendation</span>
+            <select class="sl-select" formControlName="recommendation">
+              <option value="Izlenmeli">Izlenmeli</option>
+              <option value="Takip Edilmeli">Takip Edilmeli</option>
+              <option value="Gelistirilmeli">Gelistirilmeli</option>
+              <option value="Transfer Onerisi">Transfer Onerisi</option>
+              <option value="Uygun Degil">Uygun Degil</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="section-head">
+          <span class="section-index">03</span>
+          <div>
+            <h3>Performance Scores</h3>
+            <p>Score each dimension from 0 to 100.</p>
+          </div>
+        </div>
+
+        <div class="score-grid">
+          <label>
+            <span>Technical</span>
+            <input class="sl-input" type="number" min="0" max="100" formControlName="technicalScore" />
+          </label>
+          <label>
+            <span>Physical</span>
+            <input class="sl-input" type="number" min="0" max="100" formControlName="physicalScore" />
+          </label>
+          <label>
+            <span>Tactical</span>
+            <input class="sl-input" type="number" min="0" max="100" formControlName="tacticalScore" />
+          </label>
+          <label>
+            <span>Mental</span>
+            <input class="sl-input" type="number" min="0" max="100" formControlName="mentalScore" />
+          </label>
+          <label class="potential-score">
+            <span>Potential</span>
+            <input class="sl-input" type="number" min="0" max="100" formControlName="potentialScore" />
+          </label>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="section-head">
+          <span class="section-index">04</span>
+          <div>
+            <h3>Observation Notes</h3>
+            <p>Write the scout note manually or insert a simulated voice note.</p>
+          </div>
+        </div>
+
         <label>
-          Report type
-          <select formControlName="reportType">
-            @for (reportType of reportTypes; track reportType) {
-              <option [value]="reportType">{{ reportType }}</option>
-            }
-          </select>
+          <span>Title</span>
+          <input class="sl-input" type="text" formControlName="title" />
         </label>
 
-        <label>
-          Event date
-          <input type="date" formControlName="eventDate" />
+        <label class="wide">
+          <span>Observation text</span>
+          <textarea class="sl-textarea" rows="8" formControlName="observationText"></textarea>
         </label>
+      </section>
 
-        <label [class.highlight]="isMatchReport()">
-          Opponent
-          <input type="text" formControlName="opponent" placeholder="Optional for training" />
-        </label>
+      @if (errorMessage()) {
+        <p class="message error">{{ errorMessage() }}</p>
+      }
+      @if (successMessage()) {
+        <p class="message success">{{ successMessage() }}</p>
+      }
 
-        <label [class.highlight]="isMatchReport()">
-          Competition
-          <input type="text" formControlName="competition" placeholder="League, friendly, camp" />
-        </label>
+      <button class="submit-button" type="submit" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Creating report...' : 'Create report and analyze' }}
+      </button>
+    </form>
 
-        <label>
-          Minutes played
-          <input type="number" min="0" max="120" formControlName="minutesPlayed" />
-        </label>
-
-        <label>
-          Observed position
-          <input type="text" formControlName="observedPosition" />
-        </label>
-      </div>
-
-      <label>
-        Title
-        <input type="text" formControlName="title" />
-      </label>
-
+    <aside class="side-column">
       <section class="voice-note-panel">
         <div class="voice-note-head">
           <span class="voice-icon" aria-hidden="true"></span>
@@ -74,8 +169,9 @@
 
         <div class="voice-note-controls">
           <label>
-            Scenario
+            <span>Scenario</span>
             <select
+              class="sl-select"
               [value]="selectedVoiceNoteScenario()"
               (change)="setVoiceNoteScenario($any($event.target).value)"
             >
@@ -124,111 +220,63 @@
         }
       </section>
 
-      <label class="wide">
-        Observation text
-        <textarea rows="7" formControlName="observationText"></textarea>
-      </label>
-
-      <div class="score-grid">
-        <label>
-          Technical
-          <input type="number" min="0" max="100" formControlName="technicalScore" />
-        </label>
-        <label>
-          Physical
-          <input type="number" min="0" max="100" formControlName="physicalScore" />
-        </label>
-        <label>
-          Tactical
-          <input type="number" min="0" max="100" formControlName="tacticalScore" />
-        </label>
-        <label>
-          Mental
-          <input type="number" min="0" max="100" formControlName="mentalScore" />
-        </label>
-        <label>
-          Potential
-          <input type="number" min="0" max="100" formControlName="potentialScore" />
-        </label>
-      </div>
-
-      <label>
-        Recommendation
-        <select formControlName="recommendation">
-          <option value="Izlenmeli">Izlenmeli</option>
-          <option value="Takip Edilmeli">Takip Edilmeli</option>
-          <option value="Gelistirilmeli">Gelistirilmeli</option>
-          <option value="Transfer Onerisi">Transfer Onerisi</option>
-          <option value="Uygun Degil">Uygun Degil</option>
-        </select>
-      </label>
-
-      @if (errorMessage()) {
-        <p class="message error">{{ errorMessage() }}</p>
-      }
-      @if (successMessage()) {
-        <p class="message success">{{ successMessage() }}</p>
-      }
-
-      <button type="submit" [disabled]="isSubmitting()">
-        {{ isSubmitting() ? 'Creating report...' : 'Create report and analyze' }}
-      </button>
-    </form>
-
-    <aside class="analysis-panel">
-      <div class="panel-header">
-        <p>AI simulation</p>
-        <h3>Analysis Result</h3>
-      </div>
-
-      @if (createdReport(); as report) {
-        <div class="score-orb">
-          <strong>{{ report.suggestedScore || 0 }}</strong>
-          <span>suggested score</span>
-          <i><em [style.width.%]="scorePercent(report.suggestedScore)"></em></i>
+      <section class="analysis-panel">
+        <div class="panel-header">
+          <p>AI simulation</p>
+          <h3>Analysis Result</h3>
         </div>
 
-        <section>
-          <h4>Summary</h4>
-          <p>{{ report.analysisSummary }}</p>
-        </section>
-
-        <section>
-          <h4>Strengths</h4>
-          <div class="chips">
-            @for (item of splitValues(report.strengths); track item) {
-              <span>{{ item }}</span>
-            }
+        @if (createdReport(); as report) {
+          <div class="score-orb">
+            <div>
+              <strong>{{ report.suggestedScore || 0 }}</strong>
+              <span>suggested score</span>
+            </div>
+            <i><em [style.width.%]="scorePercent(report.suggestedScore)"></em></i>
           </div>
-        </section>
 
-        <section>
-          <h4>Weaknesses</h4>
-          <div class="chips warning">
-            @for (item of splitValues(report.weaknesses); track item) {
-              <span>{{ item }}</span>
-            }
-          </div>
-        </section>
+          <section>
+            <h4>Summary</h4>
+            <p>{{ report.analysisSummary }}</p>
+          </section>
 
-        <section>
-          <h4>Tags</h4>
-          <div class="chips">
-            @for (item of splitValues(report.tags); track item) {
-              <span>{{ item }}</span>
-            }
-          </div>
-        </section>
+          <section>
+            <h4>Strengths</h4>
+            <div class="chips">
+              @for (item of splitValues(report.strengths); track item) {
+                <span>{{ item }}</span>
+              }
+            </div>
+          </section>
 
-        <section>
-          <h4>Development advice</h4>
-          <p>{{ report.developmentAdvice }}</p>
-        </section>
-      } @else {
-        <p class="empty">
-          Submit a report to generate rule-based analysis with strengths, weaknesses, tags, and development advice.
-        </p>
-      }
+          <section>
+            <h4>Weaknesses</h4>
+            <div class="chips warning">
+              @for (item of splitValues(report.weaknesses); track item) {
+                <span>{{ item }}</span>
+              }
+            </div>
+          </section>
+
+          <section>
+            <h4>Tags</h4>
+            <div class="chips">
+              @for (item of splitValues(report.tags); track item) {
+                <span>{{ item }}</span>
+              }
+            </div>
+          </section>
+
+          <section>
+            <h4>Development advice</h4>
+            <p>{{ report.developmentAdvice }}</p>
+          </section>
+        } @else {
+          <p class="empty">
+            Submit a report to generate rule-based analysis with strengths, weaknesses, tags, and development advice.
+          </p>
+        }
+      </section>
     </aside>
   </div>
 </section>
