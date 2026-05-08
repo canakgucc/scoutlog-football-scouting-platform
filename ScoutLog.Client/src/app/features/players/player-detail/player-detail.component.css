@@ -231,6 +231,244 @@ h2 {
   font-weight: 750;
 }
 
+.timeline-empty {
+  padding: 18px;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.development-summary-grid {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.65fr) minmax(0, 1fr);
+  gap: 14px;
+}
+
+.trend-card,
+.summary-card,
+.delta-grid article,
+.insight-grid article {
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.trend-card,
+.summary-card {
+  padding: 16px;
+}
+
+.trend-card {
+  display: grid;
+  gap: 8px;
+}
+
+.trend-card span,
+.summary-card span,
+.delta-grid span,
+.timeline-trend-bars span,
+.timeline-title span,
+.timeline-scores small {
+  color: var(--muted);
+  font-weight: 850;
+}
+
+.trend-card span,
+.summary-card span,
+.delta-grid span {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+.trend-card strong {
+  font-size: 1.55rem;
+}
+
+.trend-card.improving {
+  border-color: #99f6e4;
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.trend-card.stable {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.trend-card.declining {
+  border-color: #fecaca;
+  background: #fff1f2;
+  color: #be123c;
+}
+
+.summary-card {
+  display: grid;
+  align-content: center;
+  gap: 8px;
+}
+
+.timeline-trend-bars {
+  min-height: 170px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: end;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 8px;
+  background: #fbfdff;
+}
+
+.timeline-trend-bars article {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+
+.trend-bar {
+  width: 100%;
+  max-width: 34px;
+  height: 100%;
+  display: flex;
+  align-items: end;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e5edf2;
+}
+
+.trend-bar i {
+  width: 100%;
+  display: block;
+  border-radius: inherit;
+  background: linear-gradient(180deg, #14b8a6, #0f766e);
+}
+
+.delta-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.delta-grid article {
+  display: grid;
+  gap: 6px;
+  padding: 13px;
+}
+
+.delta-grid strong {
+  font-size: 1.15rem;
+}
+
+.delta-grid .positive strong {
+  color: #047857;
+}
+
+.delta-grid .negative strong {
+  color: #be123c;
+}
+
+.delta-grid .neutral strong {
+  color: #475569;
+}
+
+.insight-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.insight-grid article {
+  padding: 16px;
+}
+
+.insight-grid h4 {
+  margin-bottom: 12px;
+}
+
+.frequency-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.frequency-chip-row span {
+  padding: 7px 9px;
+  border-radius: 999px;
+  background: #ecfeff;
+  color: #0f766e;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.vertical-timeline {
+  position: relative;
+  display: grid;
+  gap: 12px;
+  padding-left: 18px;
+}
+
+.vertical-timeline::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 6px;
+  width: 2px;
+  border-radius: 999px;
+  background: #dbeafe;
+}
+
+.timeline-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  gap: 10px;
+}
+
+.timeline-marker {
+  position: relative;
+  z-index: 1;
+  width: 13px;
+  height: 13px;
+  margin-top: 18px;
+  border-radius: 50%;
+  background: #0f766e;
+}
+
+.timeline-content {
+  padding: 14px;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.timeline-title {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.timeline-title strong {
+  margin-top: 4px;
+}
+
+.timeline-scores {
+  min-width: 150px;
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  justify-content: end;
+  column-gap: 10px;
+  row-gap: 2px;
+  text-align: right;
+}
+
+.timeline-scores b {
+  color: #0f766e;
+}
+
+.timeline-content p {
+  margin-top: 10px;
+  color: #475569;
+  line-height: 1.5;
+}
+
 .panel-header {
   display: flex;
   justify-content: space-between;
@@ -391,6 +629,12 @@ h2 {
   .info-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .development-summary-grid,
+  .delta-grid,
+  .insight-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 640px) {
@@ -401,6 +645,20 @@ h2 {
   }
 
   .report-scores {
+    text-align: left;
+  }
+
+  .timeline-trend-bars {
+    grid-template-columns: repeat(5, minmax(44px, 1fr));
+    overflow-x: auto;
+  }
+
+  .timeline-title {
+    flex-direction: column;
+  }
+
+  .timeline-scores {
+    justify-content: start;
     text-align: left;
   }
 }

@@ -8,6 +8,25 @@ import { PIPELINE_STATUSES, PipelineStatus, Player, WATCHLIST_PRIORITIES, Watchl
 import { PlayerPhotoCacheService } from '../player-photo-cache.service';
 import { PlayerService } from '../player.service';
 
+type DevelopmentTrend = 'Improving' | 'Stable' | 'Declining';
+
+interface TimelinePoint {
+  report: ScoutReport;
+  compositeScore: number;
+}
+
+interface ScoreDelta {
+  label: string;
+  latest: number | null;
+  previous: number | null;
+  delta: number | null;
+}
+
+interface FrequencyItem {
+  label: string;
+  count: number;
+}
+
 @Component({
   selector: 'app-player-detail',
   imports: [DatePipe, DecimalPipe, FormsModule, RouterLink],
@@ -35,6 +54,81 @@ export class PlayerDetailComponent implements OnInit {
   readonly watchlistPriorities = WATCHLIST_PRIORITIES;
 
   readonly latestReport = computed(() => this.reports()[0] ?? null);
+  readonly timelinePoints = computed<TimelinePoint[]>(() =>
+    [...this.reports()]
+      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+      .map((report) => ({
+        report,
+        compositeScore: this.compositeScore(report)
+      }))
+  );
+  readonly recentTrend = computed<DevelopmentTrend>(() => {
+    const recentPoints = this.timelinePoints().slice(-5);
+
+    if (recentPoints.length < 2) {
+      return 'Stable';
+    }
+
+    const delta =
+      recentPoints[recentPoints.length - 1].compositeScore - recentPoints[0].compositeScore;
+
+    if (delta >= 3) {
+      return 'Improving';
+    }
+
+    if (delta <= -3) {
+      return 'Declining';
+    }
+
+    return 'Stable';
+  });
+  readonly recentTrendDelta = computed(() => {
+    const recentPoints = this.timelinePoints().slice(-5);
+
+    if (recentPoints.length < 2) {
+      return 0;
+    }
+
+    return this.roundScore(
+      recentPoints[recentPoints.length - 1].compositeScore - recentPoints[0].compositeScore
+    );
+  });
+  readonly scoreDeltas = computed<ScoreDelta[]>(() => {
+    const [latest, previous] = this.reports();
+
+    return [
+      this.buildScoreDelta('Technical', latest?.technicalScore, previous?.technicalScore),
+      this.buildScoreDelta('Physical', latest?.physicalScore, previous?.physicalScore),
+      this.buildScoreDelta('Tactical', latest?.tacticalScore, previous?.tacticalScore),
+      this.buildScoreDelta('Mental', latest?.mentalScore, previous?.mentalScore),
+      this.buildScoreDelta('Potential', latest?.potentialScore, previous?.potentialScore)
+    ];
+  });
+  readonly repeatedWeaknesses = computed(() => this.topFrequencyItems('weaknesses'));
+  readonly repeatedTags = computed(() => this.topFrequencyItems('tags'));
+  readonly developmentSummary = computed(() => {
+    const reportCount = this.reports().length;
+
+    if (reportCount === 0) {
+      return 'No development data yet.';
+    }
+
+    if (reportCount === 1) {
+      return 'Initial scouting baseline created.';
+    }
+
+    const trend = this.recentTrend();
+
+    if (trend === 'Improving') {
+      return 'Recent reports show positive development across the player profile.';
+    }
+
+    if (trend === 'Declining') {
+      return 'Recent scores are trending down, so the player should be reviewed closely.';
+    }
+
+    return 'Recent reports show a stable profile with targeted development areas.';
+  });
   readonly averageScores = computed(() => {
     const reports = this.reports();
 
@@ -207,6 +301,41 @@ export class PlayerDetailComponent implements OnInit {
     return Math.max(0, Math.min(100, (score ?? 0) * 10));
   }
 
+  compositeScore(report: ScoutReport): number {
+    return this.roundScore(
+      (report.technicalScore +
+        report.physicalScore +
+        report.tacticalScore +
+        report.mentalScore +
+        report.potentialScore) /
+        5
+    );
+  }
+
+  trendClass(trend: DevelopmentTrend): string {
+    return trend.toLowerCase();
+  }
+
+  deltaClass(delta: number | null): string {
+    if (delta === null || delta === 0) {
+      return 'neutral';
+    }
+
+    return delta > 0 ? 'positive' : 'negative';
+  }
+
+  formatDelta(delta: number | null): string {
+    if (delta === null) {
+      return 'No previous report';
+    }
+
+    if (delta === 0) {
+      return '0';
+    }
+
+    return delta > 0 ? `+${delta}` : `${delta}`;
+  }
+
   photoSource(player: Player): string | null {
     if (this.hasBrokenPhoto()) {
       return null;
@@ -220,7 +349,7 @@ export class PlayerDetailComponent implements OnInit {
   }
 
   private average(values: number[]): number {
-    return Math.round((values.reduce((sum, value) => sum + value, 0) / values.length) * 10) / 10;
+    return this.roundScore(values.reduce((sum, value) => sum + value, 0) / values.length);
   }
 
   private setPlayerState(player: Player): void {
@@ -228,5 +357,56 @@ export class PlayerDetailComponent implements OnInit {
     this.selectedPipelineStatus.set(player.pipelineStatus);
     this.watchlistPriority.set(player.watchlistPriority ?? 'Medium');
     this.watchlistReason.set(player.watchlistReason ?? '');
+  }
+
+  private buildScoreDelta(
+    label: string,
+    latest: number | undefined,
+    previous: number | undefined
+  ): ScoreDelta {
+    return {
+      label,
+      latest: latest ?? null,
+      previous: previous ?? null,
+      delta: latest === undefined || previous === undefined ? null : latest - previous
+    };
+  }
+
+  private topFrequencyItems(field: 'weaknesses' | 'tags'): FrequencyItem[] {
+    const counts = new Map<string, FrequencyItem>();
+
+    for (const report of this.reports()) {
+      const source = report[field];
+
+      for (const item of this.splitReportList(source)) {
+        const key = item.toLocaleLowerCase('tr-TR');
+        const existing = counts.get(key);
+
+        if (existing) {
+          existing.count += 1;
+        } else {
+          counts.set(key, { label: item, count: 1 });
+        }
+      }
+    }
+
+    return Array.from(counts.values())
+      .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
+      .slice(0, 5);
+  }
+
+  private splitReportList(value: string | null): string[] {
+    if (!value) {
+      return [];
+    }
+
+    return value
+      .split(/[;,]/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  private roundScore(value: number): number {
+    return Math.round(value * 10) / 10;
   }
 }

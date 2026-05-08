@@ -200,6 +200,114 @@
       </section>
     </div>
 
+    <section class="panel development-panel">
+      <div class="panel-header">
+        <h3>Development Timeline</h3>
+        <span>{{ reports().length }} report history</span>
+      </div>
+
+      @if (reports().length === 0) {
+        <div class="timeline-empty">
+          <strong>No development data yet.</strong>
+          <p>Create scout reports to start tracking score movement and recurring development themes.</p>
+        </div>
+      } @else {
+        <div class="development-summary-grid">
+          <article class="trend-card" [class]="trendClass(recentTrend())">
+            <span>Recent trend</span>
+            <strong>{{ recentTrend() }}</strong>
+            <small>
+              @if (reports().length === 1) {
+                Initial scouting baseline created.
+              } @else {
+                {{ formatDelta(recentTrendDelta()) }} composite points over last {{ timelinePoints().slice(-5).length }} reports
+              }
+            </small>
+          </article>
+
+          <article class="summary-card">
+            <span>Development summary</span>
+            <p>{{ developmentSummary() }}</p>
+          </article>
+        </div>
+
+        <div class="timeline-trend-bars">
+          @for (point of timelinePoints().slice(-5); track point.report.id) {
+            <article>
+              <span>{{ point.report.createdAt | date: 'MMM d' }}</span>
+              <div class="trend-bar">
+                <i [style.height.%]="scorePercent(point.compositeScore)"></i>
+              </div>
+              <strong>{{ point.compositeScore | number: '1.1-1' }}</strong>
+            </article>
+          }
+        </div>
+
+        <div class="delta-grid">
+          @for (delta of scoreDeltas(); track delta.label) {
+            <article [class]="deltaClass(delta.delta)">
+              <span>{{ delta.label }}</span>
+              <strong>{{ formatDelta(delta.delta) }}</strong>
+              @if (delta.latest !== null && delta.previous !== null) {
+                <small>{{ delta.previous }} → {{ delta.latest }}</small>
+              }
+            </article>
+          }
+        </div>
+
+        <div class="insight-grid">
+          <article>
+            <h4>Repeated Weaknesses</h4>
+            @if (repeatedWeaknesses().length) {
+              <div class="frequency-chip-row">
+                @for (item of repeatedWeaknesses(); track item.label) {
+                  <span>{{ item.label }} <b>{{ item.count }}</b></span>
+                }
+              </div>
+            } @else {
+              <p class="empty">No repeated weaknesses yet.</p>
+            }
+          </article>
+
+          <article>
+            <h4>Repeated Tags</h4>
+            @if (repeatedTags().length) {
+              <div class="frequency-chip-row">
+                @for (item of repeatedTags(); track item.label) {
+                  <span>{{ item.label }} <b>{{ item.count }}</b></span>
+                }
+              </div>
+            } @else {
+              <p class="empty">No repeated tags yet.</p>
+            }
+          </article>
+        </div>
+
+        <div class="vertical-timeline">
+          @for (point of timelinePoints(); track point.report.id) {
+            <article class="timeline-item">
+              <div class="timeline-marker"></div>
+              <div class="timeline-content">
+                <div class="timeline-title">
+                  <div>
+                    <span>{{ point.report.createdAt | date: 'MMM d, y' }}</span>
+                    <strong>{{ point.report.title }}</strong>
+                  </div>
+                  <div class="timeline-scores">
+                    <b>{{ point.report.potentialScore }}</b>
+                    <small>Potential</small>
+                    <b>{{ point.compositeScore | number: '1.1-1' }}</b>
+                    <small>Composite</small>
+                  </div>
+                </div>
+                <p>{{ point.report.analysisSummary || point.report.observationText }}</p>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </section>
+
     <section class="panel">
       <div class="panel-header">
         <h3>Scout Reports</h3>
