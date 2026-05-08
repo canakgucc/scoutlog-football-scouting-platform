@@ -1,95 +1,282 @@
-<section class="detail-page">
-  <a class="back-link" routerLink="/players">Back to players</a>
-
+<section class="detail-page sl-page">
   @if (isLoading()) {
-    <div class="state-card">
+    <div class="state-card loading-card sl-state-card">
       <span class="loader"></span>
-      <strong>Loading player detail...</strong>
+      <div>
+        <strong>Loading player detail...</strong>
+        <small>Preparing player intelligence profile.</small>
+      </div>
     </div>
   } @else if (errorMessage()) {
-    <div class="state-card error">
-      <strong>{{ errorMessage() }}</strong>
-      <button type="button" (click)="loadPlayer()">Try again</button>
+    <div class="state-card error-card sl-state-card">
+      <div>
+        <strong>{{ errorMessage() }}</strong>
+        <small>Check the API connection and try again.</small>
+      </div>
+      <button type="button" class="secondary-action" (click)="loadPlayer()">Try again</button>
     </div>
   } @else if (player(); as player) {
-    <div class="hero-card">
-      <div class="avatar">
-        @if (photoSource(player); as photo) {
-          <img
-            [src]="photo"
-            [alt]="player.firstName + ' ' + player.lastName"
-            (error)="onPhotoError()"
-          />
-        } @else {
-          <span>{{ player.firstName[0] }}{{ player.lastName[0] }}</span>
-        }
-      </div>
-
-      <div class="identity">
-        <p class="eyebrow">Player profile</p>
-        <h2>{{ player.firstName }} {{ player.lastName }}</h2>
-        <span>{{ player.position }} · {{ player.nationality }}</span>
-      </div>
-
-      <div class="profile-actions">
-        <span class="status">{{ player.status }}</span>
-        <span class="pipeline-badge">{{ player.pipelineStatus }}</span>
-        @if (player.isWatchlisted) {
-          <span class="watchlist-badge">{{ player.watchlistPriority }} watchlist</span>
-        }
-        <a [routerLink]="['/scout-reports/create', player.id]">New report</a>
-      </div>
-    </div>
-
-    <div class="info-grid">
-      <article>
-        <span>Age</span>
-        <strong>{{ calculateAge(player.birthDate) }}</strong>
-      </article>
-      <article>
-        <span>Preferred Foot</span>
-        <strong>{{ player.preferredFoot }}</strong>
-      </article>
-      <article>
-        <span>Height</span>
-        <strong>{{ player.height }} cm</strong>
-      </article>
-      <article>
-        <span>Weight</span>
-        <strong>{{ player.weight }} kg</strong>
-      </article>
-    </div>
-
-    <section class="panel pipeline-panel">
-      <div class="panel-header">
-        <h3>Talent Pipeline</h3>
-        <span>scouting workflow</span>
-      </div>
-
-      <div class="pipeline-grid">
-        <div class="pipeline-control">
-          <label for="pipelineStatus">Pipeline status</label>
-          <select
-            id="pipelineStatus"
-            [ngModel]="selectedPipelineStatus()"
-            (ngModelChange)="setPipelineStatus($event)"
-          >
-            @for (pipelineStatus of pipelineStatuses; track pipelineStatus) {
-              <option [value]="pipelineStatus">{{ pipelineStatus }}</option>
-            }
-          </select>
-          <button type="button" [disabled]="isPipelineSaving()" (click)="savePipelineStatus()">
-            {{ isPipelineSaving() ? 'Saving...' : 'Update status' }}
-          </button>
-          @if (pipelineMessage()) {
-            <p class="form-message">{{ pipelineMessage() }}</p>
+    <div class="profile-hero">
+      <a class="back-link" routerLink="/players">Back to players</a>
+      <div class="hero-main">
+        <div class="avatar">
+          @if (photoSource(player); as photo) {
+            <img
+              [src]="photo"
+              [alt]="player.firstName + ' ' + player.lastName"
+              (error)="onPhotoError()"
+            />
+          } @else {
+            <span>{{ player.firstName[0] }}{{ player.lastName[0] }}</span>
           }
         </div>
 
-        <div class="watchlist-control">
+        <div class="identity">
+          <p class="eyebrow sl-eyebrow">Player intelligence profile</p>
+          <h2>{{ player.firstName }} {{ player.lastName }}</h2>
+          <span>{{ player.position }} · {{ player.nationality }} · {{ player.preferredFoot }} foot</span>
+          <div class="badge-row">
+            <span class="status" [class.passive]="player.status !== 'Active'">{{ player.status }}</span>
+            <span class="pipeline-badge">{{ player.pipelineStatus }}</span>
+            @if (player.isWatchlisted) {
+              <span class="watchlist-badge">{{ player.watchlistPriority }} watchlist</span>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-actions">
+        <a class="primary-action" [routerLink]="['/scout-reports/create', player.id]">Create report</a>
+      </div>
+    </div>
+
+    <div class="detail-layout">
+      <main class="main-column">
+        <section class="panel overview-panel">
+          <div class="panel-header">
+            <div>
+              <p class="panel-kicker">Profile overview</p>
+              <h3>Key Player Information</h3>
+            </div>
+            <span>{{ reports().length }} reports</span>
+          </div>
+
+          <div class="info-grid">
+            <article>
+              <span>Age</span>
+              <strong>{{ calculateAge(player.birthDate) }}</strong>
+            </article>
+            <article>
+              <span>Preferred Foot</span>
+              <strong>{{ player.preferredFoot }}</strong>
+            </article>
+            <article>
+              <span>Height</span>
+              <strong>{{ player.height }} cm</strong>
+            </article>
+            <article>
+              <span>Weight</span>
+              <strong>{{ player.weight }} kg</strong>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel development-panel">
+          <div class="panel-header">
+            <div>
+              <p class="panel-kicker">Progress intelligence</p>
+              <h3>Development Timeline</h3>
+            </div>
+            <span>{{ reports().length }} report history</span>
+          </div>
+
+          @if (reports().length === 0) {
+            <div class="timeline-empty">
+              <strong>No development data yet.</strong>
+              <p>Create scout reports to start tracking score movement and recurring development themes.</p>
+            </div>
+          } @else {
+            <div class="development-summary-grid">
+              <article
+                class="trend-card"
+                [class.improving]="recentTrend() === 'Improving'"
+                [class.stable]="recentTrend() === 'Stable'"
+                [class.declining]="recentTrend() === 'Declining'"
+              >
+                <span>Recent trend</span>
+                <strong>{{ recentTrend() }}</strong>
+                <small>
+                  @if (reports().length === 1) {
+                    Initial scouting baseline created.
+                  } @else {
+                    {{ formatDelta(recentTrendDelta()) }} composite points over last {{ timelinePoints().slice(-5).length }} reports
+                  }
+                </small>
+              </article>
+
+              <article class="summary-card">
+                <span>Development summary</span>
+                <p>{{ developmentSummary() }}</p>
+              </article>
+            </div>
+
+            <div class="timeline-trend-bars">
+              @for (point of timelinePoints().slice(-5); track point.report.id) {
+                <article>
+                  <span>{{ (point.report.eventDate || point.report.createdAt) | date: 'MMM d' }}</span>
+                  <div class="trend-bar">
+                    <i [style.height.%]="scorePercent(point.compositeScore)"></i>
+                  </div>
+                  <strong>{{ point.compositeScore | number: '1.1-1' }}</strong>
+                </article>
+              }
+            </div>
+
+            <div class="delta-grid">
+              @for (delta of scoreDeltas(); track delta.label) {
+                <article [class]="deltaClass(delta.delta)">
+                  <span>{{ delta.label }}</span>
+                  <strong>{{ formatDelta(delta.delta) }}</strong>
+                  @if (delta.latest !== null && delta.previous !== null) {
+                    <small>{{ delta.previous }} -> {{ delta.latest }}</small>
+                  }
+                </article>
+              }
+            </div>
+
+            <div class="insight-grid">
+              <article>
+                <h4>Repeated Weaknesses</h4>
+                @if (repeatedWeaknesses().length) {
+                  <div class="frequency-chip-row warning">
+                    @for (item of repeatedWeaknesses(); track item.label) {
+                      <span>{{ item.label }} <b>{{ item.count }}</b></span>
+                    }
+                  </div>
+                } @else {
+                  <p class="empty">No repeated weaknesses yet.</p>
+                }
+              </article>
+
+              <article>
+                <h4>Repeated Tags</h4>
+                @if (repeatedTags().length) {
+                  <div class="frequency-chip-row">
+                    @for (item of repeatedTags(); track item.label) {
+                      <span>{{ item.label }} <b>{{ item.count }}</b></span>
+                    }
+                  </div>
+                } @else {
+                  <p class="empty">No repeated tags yet.</p>
+                }
+              </article>
+            </div>
+
+            <div class="vertical-timeline">
+              @for (point of timelinePoints(); track point.report.id) {
+                <article class="timeline-item">
+                  <div class="timeline-marker"></div>
+                  <div class="timeline-content">
+                    <div class="timeline-title">
+                      <div>
+                        <span>{{ (point.report.eventDate || point.report.createdAt) | date: 'MMM d, y' }}</span>
+                        <strong>{{ point.report.title }}</strong>
+                        <small>{{ reportContext(point.report) }}</small>
+                      </div>
+                      <div class="timeline-scores">
+                        <b>{{ point.report.potentialScore }}</b>
+                        <small>Potential</small>
+                        <b>{{ point.compositeScore | number: '1.1-1' }}</b>
+                        <small>Composite</small>
+                      </div>
+                    </div>
+                    <p>{{ point.report.analysisSummary || point.report.observationText }}</p>
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="panel-kicker">Scouting archive</p>
+              <h3>Scout Reports</h3>
+            </div>
+            <span>{{ reports().length }} total</span>
+          </div>
+
+          @if (reports().length) {
+            <div class="report-list">
+              @for (report of reports(); track report.id) {
+                <article class="report-row">
+                  <div class="report-main">
+                    <div class="report-title-line">
+                      <strong>{{ report.title }}</strong>
+                      <span class="type-badge" [class.training]="report.reportType === 'Training'">{{ report.reportType }}</span>
+                    </div>
+                    <span>{{ (report.eventDate || report.createdAt) | date: 'MMM d, y' }} · {{ report.recommendation }}</span>
+                    <small class="report-context">{{ reportContext(report) }}</small>
+                    <p>{{ report.analysisSummary || report.observationText }}</p>
+                    @if (report.tags) {
+                      <div class="tag-row">
+                        @for (tag of report.tags.split(';').slice(0, 4); track tag) {
+                          @if (tag.trim()) {
+                            <span>{{ tag.trim() }}</span>
+                          }
+                        }
+                      </div>
+                    }
+                  </div>
+                  <div class="report-scores">
+                    <b>{{ report.potentialScore }}</b>
+                    <small>Potential</small>
+                  </div>
+                </article>
+              }
+            </div>
+          } @else {
+            <p class="empty">No scout reports for this player yet.</p>
+          }
+        </section>
+      </main>
+
+      <aside class="side-column">
+        <section class="panel pipeline-panel">
+          <div class="panel-header">
+            <div>
+              <p class="panel-kicker">Scouting workflow</p>
+              <h3>Talent Pipeline</h3>
+            </div>
+          </div>
+
+          <div class="pipeline-control">
+            <label for="pipelineStatus">Pipeline status</label>
+            <select
+              id="pipelineStatus"
+              class="sl-select"
+              [ngModel]="selectedPipelineStatus()"
+              (ngModelChange)="setPipelineStatus($event)"
+            >
+              @for (pipelineStatus of pipelineStatuses; track pipelineStatus) {
+                <option [value]="pipelineStatus">{{ pipelineStatus }}</option>
+              }
+            </select>
+            <button type="button" [disabled]="isPipelineSaving()" (click)="savePipelineStatus()">
+              {{ isPipelineSaving() ? 'Saving...' : 'Update status' }}
+            </button>
+            @if (pipelineMessage()) {
+              <p class="form-message">{{ pipelineMessage() }}</p>
+            }
+          </div>
+        </section>
+
+        <section class="panel watchlist-panel" [class.active]="player.isWatchlisted">
           <div class="watchlist-heading">
             <div>
-              <strong>Watchlist</strong>
+              <p class="panel-kicker">Club radar</p>
+              <h3>Watchlist</h3>
               <span>{{ player.isWatchlisted ? 'Active tracking' : 'Not currently tracked' }}</span>
             </div>
             @if (player.isWatchlisted) {
@@ -100,6 +287,7 @@
           <label for="watchlistPriority">Priority</label>
           <select
             id="watchlistPriority"
+            class="sl-select"
             [ngModel]="watchlistPriority()"
             (ngModelChange)="setWatchlistPriority($event)"
           >
@@ -111,6 +299,7 @@
           <label for="watchlistReason">Reason / comment</label>
           <textarea
             id="watchlistReason"
+            class="sl-textarea"
             rows="4"
             placeholder="Why should this player stay on the club radar?"
             [ngModel]="watchlistReason()"
@@ -136,205 +325,73 @@
           @if (watchlistMessage()) {
             <p class="form-message">{{ watchlistMessage() }}</p>
           }
-        </div>
-      </div>
-    </section>
+        </section>
 
-    <div class="content-grid">
-      <section class="panel score-panel">
-        <div class="panel-header">
-          <h3>Average Scores</h3>
-          <span>{{ reports().length }} reports</span>
-        </div>
+        <section class="panel score-panel">
+          <div class="panel-header">
+            <div>
+              <p class="panel-kicker">Performance profile</p>
+              <h3>Average Scores</h3>
+            </div>
+          </div>
 
-        <div class="score-list">
-          <div>
-            <span>Technical</span>
-            <b>{{ averageScores().technical | number: '1.1-1' }}</b>
-            <i><em [style.width.%]="scorePercent(averageScores().technical)"></em></i>
+          <div class="score-list">
+            <div>
+              <span>Technical</span>
+              <b>{{ averageScores().technical | number: '1.1-1' }}</b>
+              <i><em [style.width.%]="scorePercent(averageScores().technical)"></em></i>
+            </div>
+            <div>
+              <span>Physical</span>
+              <b>{{ averageScores().physical | number: '1.1-1' }}</b>
+              <i><em [style.width.%]="scorePercent(averageScores().physical)"></em></i>
+            </div>
+            <div>
+              <span>Tactical</span>
+              <b>{{ averageScores().tactical | number: '1.1-1' }}</b>
+              <i><em [style.width.%]="scorePercent(averageScores().tactical)"></em></i>
+            </div>
+            <div>
+              <span>Mental</span>
+              <b>{{ averageScores().mental | number: '1.1-1' }}</b>
+              <i><em [style.width.%]="scorePercent(averageScores().mental)"></em></i>
+            </div>
+            <div>
+              <span>Potential</span>
+              <b>{{ averageScores().potential | number: '1.1-1' }}</b>
+              <i><em [style.width.%]="scorePercent(averageScores().potential)"></em></i>
+            </div>
           </div>
-          <div>
-            <span>Physical</span>
-            <b>{{ averageScores().physical | number: '1.1-1' }}</b>
-            <i><em [style.width.%]="scorePercent(averageScores().physical)"></em></i>
-          </div>
-          <div>
-            <span>Tactical</span>
-            <b>{{ averageScores().tactical | number: '1.1-1' }}</b>
-            <i><em [style.width.%]="scorePercent(averageScores().tactical)"></em></i>
-          </div>
-          <div>
-            <span>Mental</span>
-            <b>{{ averageScores().mental | number: '1.1-1' }}</b>
-            <i><em [style.width.%]="scorePercent(averageScores().mental)"></em></i>
-          </div>
-          <div>
-            <span>Potential</span>
-            <b>{{ averageScores().potential | number: '1.1-1' }}</b>
-            <i><em [style.width.%]="scorePercent(averageScores().potential)"></em></i>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      <section class="panel latest-panel">
-        <div class="panel-header">
-          <h3>Latest Analysis</h3>
-          <span>{{ latestReport() ? latestReport()!.recommendation : 'No report' }}</span>
-        </div>
+        <section class="panel latest-panel">
+          <div class="panel-header">
+            <div>
+              <p class="panel-kicker">Latest read</p>
+              <h3>Latest Analysis</h3>
+            </div>
+            <span>{{ latestReport() ? latestReport()!.recommendation : 'No report' }}</span>
+          </div>
 
-        @if (latestReport(); as report) {
-          <h4>{{ report.title }}</h4>
-          <p>{{ report.analysisSummary || report.observationText }}</p>
-          <div class="tag-row">
-            @for (tag of (report.tags || 'takip edilmeli').split(';'); track tag) {
-              <span>{{ tag.trim() }}</span>
-            }
-          </div>
-          <div class="suggested">
-            <strong>Suggested score {{ report.suggestedScore || 0 }}/10</strong>
-            <i><em [style.width.%]="suggestedScorePercent(report.suggestedScore)"></em></i>
-          </div>
-        } @else {
-          <p>No scout analysis available yet.</p>
-        }
-      </section>
+          @if (latestReport(); as report) {
+            <h4>{{ report.title }}</h4>
+            <p>{{ report.analysisSummary || report.observationText }}</p>
+            <div class="tag-row">
+              @for (tag of (report.tags || 'takip edilmeli').split(';'); track tag) {
+                @if (tag.trim()) {
+                  <span>{{ tag.trim() }}</span>
+                }
+              }
+            </div>
+            <div class="suggested">
+              <strong>Suggested score {{ report.suggestedScore || 0 }}/10</strong>
+              <i><em [style.width.%]="suggestedScorePercent(report.suggestedScore)"></em></i>
+            </div>
+          } @else {
+            <p>No scout analysis available yet.</p>
+          }
+        </section>
+      </aside>
     </div>
-
-    <section class="panel development-panel">
-      <div class="panel-header">
-        <h3>Development Timeline</h3>
-        <span>{{ reports().length }} report history</span>
-      </div>
-
-      @if (reports().length === 0) {
-        <div class="timeline-empty">
-          <strong>No development data yet.</strong>
-          <p>Create scout reports to start tracking score movement and recurring development themes.</p>
-        </div>
-      } @else {
-        <div class="development-summary-grid">
-          <article class="trend-card" [class]="trendClass(recentTrend())">
-            <span>Recent trend</span>
-            <strong>{{ recentTrend() }}</strong>
-            <small>
-              @if (reports().length === 1) {
-                Initial scouting baseline created.
-              } @else {
-                {{ formatDelta(recentTrendDelta()) }} composite points over last {{ timelinePoints().slice(-5).length }} reports
-              }
-            </small>
-          </article>
-
-          <article class="summary-card">
-            <span>Development summary</span>
-            <p>{{ developmentSummary() }}</p>
-          </article>
-        </div>
-
-        <div class="timeline-trend-bars">
-          @for (point of timelinePoints().slice(-5); track point.report.id) {
-            <article>
-              <span>{{ (point.report.eventDate || point.report.createdAt) | date: 'MMM d' }}</span>
-              <div class="trend-bar">
-                <i [style.height.%]="scorePercent(point.compositeScore)"></i>
-              </div>
-              <strong>{{ point.compositeScore | number: '1.1-1' }}</strong>
-            </article>
-          }
-        </div>
-
-        <div class="delta-grid">
-          @for (delta of scoreDeltas(); track delta.label) {
-            <article [class]="deltaClass(delta.delta)">
-              <span>{{ delta.label }}</span>
-              <strong>{{ formatDelta(delta.delta) }}</strong>
-              @if (delta.latest !== null && delta.previous !== null) {
-                <small>{{ delta.previous }} → {{ delta.latest }}</small>
-              }
-            </article>
-          }
-        </div>
-
-        <div class="insight-grid">
-          <article>
-            <h4>Repeated Weaknesses</h4>
-            @if (repeatedWeaknesses().length) {
-              <div class="frequency-chip-row">
-                @for (item of repeatedWeaknesses(); track item.label) {
-                  <span>{{ item.label }} <b>{{ item.count }}</b></span>
-                }
-              </div>
-            } @else {
-              <p class="empty">No repeated weaknesses yet.</p>
-            }
-          </article>
-
-          <article>
-            <h4>Repeated Tags</h4>
-            @if (repeatedTags().length) {
-              <div class="frequency-chip-row">
-                @for (item of repeatedTags(); track item.label) {
-                  <span>{{ item.label }} <b>{{ item.count }}</b></span>
-                }
-              </div>
-            } @else {
-              <p class="empty">No repeated tags yet.</p>
-            }
-          </article>
-        </div>
-
-        <div class="vertical-timeline">
-          @for (point of timelinePoints(); track point.report.id) {
-            <article class="timeline-item">
-              <div class="timeline-marker"></div>
-              <div class="timeline-content">
-                <div class="timeline-title">
-                  <div>
-                    <span>{{ (point.report.eventDate || point.report.createdAt) | date: 'MMM d, y' }}</span>
-                    <strong>{{ point.report.title }}</strong>
-                    <small>{{ reportContext(point.report) }}</small>
-                  </div>
-                  <div class="timeline-scores">
-                    <b>{{ point.report.potentialScore }}</b>
-                    <small>Potential</small>
-                    <b>{{ point.compositeScore | number: '1.1-1' }}</b>
-                    <small>Composite</small>
-                  </div>
-                </div>
-                <p>{{ point.report.analysisSummary || point.report.observationText }}</p>
-              </div>
-            </article>
-          }
-        </div>
-      }
-    </section>
-
-    <section class="panel">
-      <div class="panel-header">
-        <h3>Scout Reports</h3>
-        <span>{{ reports().length }} total</span>
-      </div>
-
-      @if (reports().length) {
-        <div class="report-list">
-          @for (report of reports(); track report.id) {
-            <article class="report-row">
-              <div>
-                <strong>{{ report.title }}</strong>
-                <span>{{ (report.eventDate || report.createdAt) | date: 'MMM d, y' }} · {{ report.recommendation }}</span>
-                <small class="report-context">{{ reportContext(report) }}</small>
-                <p>{{ report.observationText }}</p>
-              </div>
-              <div class="report-scores">
-                <b>{{ report.potentialScore }}</b>
-                <small>Potential</small>
-              </div>
-            </article>
-          }
-        </div>
-      } @else {
-        <p class="empty">No scout reports for this player yet.</p>
-      }
-    </section>
   }
 </section>
