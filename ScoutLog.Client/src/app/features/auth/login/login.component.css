@@ -260,7 +260,7 @@ input:focus {
 }
 
 .demo-clubs {
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 9px;
 }
 
@@ -306,6 +306,10 @@ input:focus {
 
 .besiktas .club-logo {
   background-image: url('/assets/landing/bjk-logo.jpg');
+}
+
+.trabzonspor .club-logo {
+  background-image: url('/assets/landing/trabzon-logo.jpg');
 }
 
 .proof-strip {

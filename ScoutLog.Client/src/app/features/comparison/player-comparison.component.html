@@ -1,31 +1,39 @@
-<section class="comparison-page">
-  <div class="page-header">
+<section class="comparison-page sl-page">
+  <div class="page-header sl-page-header">
     <div>
-      <p class="eyebrow">Selection board</p>
+      <p class="eyebrow sl-eyebrow">Selection board</p>
       <h2>Player Comparison</h2>
+      <p class="page-subtitle">Compare two players side by side using profile data and report-based score averages.</p>
     </div>
-    <button type="button" (click)="loadPlayers()">Refresh</button>
+    <button type="button" class="secondary-action" (click)="loadPlayers()">Refresh</button>
   </div>
 
   @if (isLoading()) {
-    <div class="state-card">
+    <div class="state-card loading-card sl-state-card">
       <span class="loader"></span>
-      <strong>Loading players for comparison...</strong>
+      <div>
+        <strong>Loading players for comparison...</strong>
+        <small>Preparing scouting matchup options.</small>
+      </div>
     </div>
   } @else if (errorMessage()) {
-    <div class="state-card error">
-      <strong>{{ errorMessage() }}</strong>
-      <button type="button" (click)="loadPlayers()">Try again</button>
+    <div class="state-card error-card sl-state-card">
+      <div>
+        <strong>{{ errorMessage() }}</strong>
+        <small>Check the API connection and try again.</small>
+      </div>
+      <button type="button" class="secondary-action" (click)="loadPlayers()">Try again</button>
     </div>
   } @else if (players().length < 2) {
-    <div class="state-card">
-      <strong>At least two players are needed for comparison.</strong>
+    <div class="state-card empty-card sl-state-card">
+      <strong>Select two players to compare scouting profiles.</strong>
+      <small>At least two player records are needed for this decision board.</small>
     </div>
   } @else {
-    <section class="selector-band">
+    <section class="selector-band sl-panel" aria-label="Player comparison selector">
       <label>
-        First player
-        <select [ngModel]="selectedLeftId()" (ngModelChange)="setLeftPlayer($event)">
+        <span>First player</span>
+        <select class="sl-select" [ngModel]="selectedLeftId()" (ngModelChange)="setLeftPlayer($event)">
           @for (player of players(); track player.id) {
             <option [value]="player.id">{{ player.firstName }} {{ player.lastName }} · {{ player.position }}</option>
           }
@@ -35,8 +43,8 @@
       <div class="versus">VS</div>
 
       <label>
-        Second player
-        <select [ngModel]="selectedRightId()" (ngModelChange)="setRightPlayer($event)">
+        <span>Second player</span>
+        <select class="sl-select" [ngModel]="selectedRightId()" (ngModelChange)="setRightPlayer($event)">
           @for (player of players(); track player.id) {
             <option [value]="player.id">{{ player.firstName }} {{ player.lastName }} · {{ player.position }}</option>
           }
@@ -44,7 +52,7 @@
       </label>
     </section>
 
-    <section class="player-panels">
+    <section class="matchup-panel">
       <article class="player-card left">
         <div class="avatar">
           @if (photoSource(leftPlayer()); as photo) {
@@ -60,6 +68,11 @@
         <b>{{ leftPlayer()?.status }}</b>
         <small>{{ leftAverages()?.reportCount ?? 0 }} reports</small>
       </article>
+
+      <div class="matchup-label">
+        <span>Scouting matchup</span>
+        <strong>Profile comparison</strong>
+      </div>
 
       <article class="player-card right">
         <div class="avatar">
@@ -89,29 +102,59 @@
       </div>
     }
 
-    <section class="comparison-board">
-      @for (row of comparisonRows(); track row.label) {
-        <article class="comparison-row" [class.missing]="winner(row) === 'none'">
-          <div class="value left-value" [class.winner]="winner(row) === 'left' || winner(row) === 'tie'">
-            <strong>{{ row.leftValue }}</strong>
-          </div>
+    <section class="comparison-section sl-panel">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow sl-eyebrow">Decision matrix</p>
+          <h3>Profile Metrics</h3>
+        </div>
+        <span>Higher numeric value is highlighted</span>
+      </div>
 
-          <div class="metric">
-            <div class="metric-head">
-              <span>{{ row.label }}</span>
-              <small>{{ row.note }}</small>
+      <div class="comparison-board">
+        @for (row of comparisonRows(); track row.label) {
+          <article
+            class="comparison-row"
+            [class.categorical]="isCategoricalRow(row)"
+            [class.missing]="winner(row) === 'none'"
+            [class.tie]="winner(row) === 'tie'"
+          >
+            <div class="value left-value" [class.winner]="winner(row) === 'left' || winner(row) === 'tie'">
+              <strong>{{ row.leftValue }}</strong>
             </div>
-            <div class="bars">
-              <i class="left-bar" [style.width.%]="barWidth(row.leftMetric, row)"></i>
-              <i class="right-bar" [style.width.%]="barWidth(row.rightMetric, row)"></i>
-            </div>
-          </div>
 
-          <div class="value right-value" [class.winner]="winner(row) === 'right' || winner(row) === 'tie'">
-            <strong>{{ row.rightValue }}</strong>
-          </div>
-        </article>
-      }
+            <div class="metric">
+              <div class="metric-head">
+                <span>{{ row.label }}</span>
+                <small>{{ isCategoricalRow(row) ? (winner(row) === 'tie' ? 'Same' : 'Profile marker') : row.note }}</small>
+                @if (!isCategoricalRow(row) && winner(row) !== 'none') {
+                  <b class="delta-badge" [class.equal]="winner(row) === 'tie'">{{ deltaLabel(row) }}</b>
+                }
+              </div>
+              @if (isCategoricalRow(row)) {
+                @if (winner(row) === 'tie') {
+                  <span class="same-badge">Same</span>
+                }
+              } @else {
+                <div class="comparison-track">
+                  <div class="track-line">
+                    <span>Left</span>
+                    <i><em class="left-bar" [style.width.%]="barWidth(row.leftMetric, row)"></em></i>
+                  </div>
+                  <div class="track-line">
+                    <span>Right</span>
+                    <i><em class="right-bar" [style.width.%]="barWidth(row.rightMetric, row)"></em></i>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <div class="value right-value" [class.winner]="winner(row) === 'right' || winner(row) === 'tie'">
+              <strong>{{ row.rightValue }}</strong>
+            </div>
+          </article>
+        }
+      </div>
     </section>
   }
 </section>

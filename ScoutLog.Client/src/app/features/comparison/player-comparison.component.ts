@@ -215,6 +215,22 @@ export class PlayerComparisonComponent implements OnInit {
     return Math.max(8, Math.round((value / max) * 100));
   }
 
+  isCategoricalRow(row: ComparisonRow): boolean {
+    return ['Position', 'Preferred foot', 'Status'].includes(row.label);
+  }
+
+  deltaLabel(row: ComparisonRow): string {
+    if (row.leftMetric === null || row.rightMetric === null || row.leftMetric === row.rightMetric) {
+      return 'Equal';
+    }
+
+    const delta = Math.abs(row.leftMetric - row.rightMetric);
+    const unit = row.label === 'Height' ? ' cm' : row.label === 'Weight' ? ' kg' : row.label === 'Age' ? ' yrs' : '';
+    const value = Number.isInteger(delta) ? `${delta}` : delta.toFixed(1);
+
+    return `+${value}${unit}`;
+  }
+
   private findPlayer(id: number | null): Player | null {
     return this.players().find((player) => player.id === id) ?? null;
   }

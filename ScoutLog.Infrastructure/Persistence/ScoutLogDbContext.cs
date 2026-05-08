@@ -230,6 +230,15 @@ public class ScoutLogDbContext(DbContextOptions<ScoutLogDbContext> options) : Db
                 Country = "Turkey",
                 LogoUrl = "https://placehold.co/160x160?text=BJK",
                 CreatedAt = seedDate
+            },
+            new Club
+            {
+                Id = 4,
+                Name = "Trabzonspor Kulübü",
+                City = "Trabzon",
+                Country = "Turkey",
+                LogoUrl = "https://placehold.co/160x160?text=TS",
+                CreatedAt = seedDate
             });
 
         modelBuilder.Entity<Team>().HasData(
@@ -256,6 +265,15 @@ public class ScoutLogDbContext(DbContextOptions<ScoutLogDbContext> options) : Db
                 Id = 3,
                 ClubId = 3,
                 Name = "Beşiktaş U19 Elite",
+                AgeGroup = "U19",
+                Season = "2025/26",
+                CoachId = (int?)null
+            },
+            new
+            {
+                Id = 4,
+                ClubId = 4,
+                Name = "Trabzonspor U19 Elite",
                 AgeGroup = "U19",
                 Season = "2025/26",
                 CoachId = (int?)null
@@ -333,6 +351,18 @@ public class ScoutLogDbContext(DbContextOptions<ScoutLogDbContext> options) : Db
                 RoleId = 4,
                 ClubId = (int?)3,
                 TeamId = (int?)3
+            },
+            new
+            {
+                Id = 7,
+                FullName = "Trabzonspor Scout",
+                Email = "scout@trabzonspor.local",
+                PasswordHash = "sha256$588c55f3ce2b8569b153c5abbf13f9f74308b88a20017cc699b835cc93195d16",
+                IsActive = true,
+                CreatedAt = seedDate,
+                RoleId = 4,
+                ClubId = (int?)4,
+                TeamId = (int?)4
             });
 
         modelBuilder.Entity<Player>().HasData(new
@@ -415,7 +445,15 @@ public class ScoutLogDbContext(DbContextOptions<ScoutLogDbContext> options) : Db
             DemoPlayer(1021, "Batuhan", "Sen", "Left Back", "Left", 179, 73, new DateOnly(2007, 4, 19)),
             DemoPlayer(1022, "Sarp", "Yuce", "Right Back", "Right", 178, 72, new DateOnly(2008, 8, 8)),
             DemoPlayer(1023, "Onur", "Tekin", "Central Midfielder", "Right", 181, 74, new DateOnly(2006, 9, 24)),
-            DemoPlayer(1024, "Furkan", "Aksoy", "Striker", "Right", 184, 78, new DateOnly(2007, 11, 6))
+            DemoPlayer(1024, "Furkan", "Aksoy", "Striker", "Right", 184, 78, new DateOnly(2007, 11, 6)),
+            DemoPlayer(1030, "Uğur", "Yaman", "Goalkeeper", "Right", 189, 83, new DateOnly(2007, 3, 18)),
+            DemoPlayer(1031, "Ege", "Karadeniz", "Centre Back", "Right", 186, 80, new DateOnly(2006, 12, 4)),
+            DemoPlayer(1032, "Miraç", "Aksu", "Left Back", "Left", 177, 71, new DateOnly(2007, 7, 22)),
+            DemoPlayer(1033, "Kuzey", "Demirci", "Defensive Midfielder", "Right", 181, 75, new DateOnly(2007, 5, 9)),
+            DemoPlayer(1034, "Aras", "Yıldırım", "Central Midfielder", "Left", 178, 70, new DateOnly(2008, 1, 16)),
+            DemoPlayer(1035, "Berkay", "Uzun", "Winger", "Right", 174, 67, new DateOnly(2007, 9, 27)),
+            DemoPlayer(1036, "Eren", "Kara", "Attacking Midfielder", "Left", 176, 68, new DateOnly(2008, 4, 11)),
+            DemoPlayer(1037, "Taha", "Bayrak", "Striker", "Right", 184, 78, new DateOnly(2006, 10, 30))
         ];
     }
 
@@ -461,7 +499,19 @@ public class ScoutLogDbContext(DbContextOptions<ScoutLogDbContext> options) : Db
             DemoReport(2036, 1020, "Santrfor fiziksel rapor", "Gol tehdidi ve ceza sahası koşuları iyi. Kondisyon ve pres sürekliliği gelişmeli.", 80, 82, 72, 73, 84, "Takip Edilmeli", "Hücum ve bitiricilik tehdidi", "Fiziksel dayanıklılık", 7, "hucum katkisi; gelişim gerekli", "Pres sürekliliği ve dayanıklılık çalışmaları önerilir", seedDate.AddDays(36)),
             DemoReport(2037, 1005, "Sağ bek üçüncü bölge raporu", "Pas bağlantısı ve bindirme zamanlaması iyi. Markaj değişiminde geç kaldı.", 74, 80, 73, 71, 79, "Takip Edilmeli", "Pas bağlantısı", "Savunma farkındalığı", 6, "teknik oyuncu; gelişim gerekli", "Markaj paylaşımı ve savunma pozisyon alma çalışılmalı", seedDate.AddDays(37)),
             DemoReport(2038, 1007, "Merkez orta saha karar raporu", "Pas kalitesi ve oyun görüşü iyi, ancak baskı altında top kaybı ve riskli tercih yaptı.", 81, 73, 79, 70, 83, "Izlenmeli", "Pas kalitesi ve oyun görüşü", "Karar verme", 7, "teknik oyuncu; gelişim gerekli", "Baskı altında karar verme ve top güvenliği çalışılmalı", seedDate.AddDays(38)),
-            DemoReport(2039, 1019, "Sol kanat hücum tekrar raporu", "Hızlı sprintler, şut tehdidi ve gol koşusu çok etkiliydi. Savunma dönüşü daha disiplinli olmalı.", 82, 84, 71, 72, 88, "Izlenmeli", "Hız ve sprint aksiyonları; Hücum ve bitiricilik tehdidi", "Savunma farkındalığı", 7, "hizli oyuncu; hucum katkisi; gelişim gerekli", "Savunma dönüşü ve ters kademe çalışmaları önerilir", seedDate.AddDays(39))
+            DemoReport(2039, 1019, "Sol kanat hücum tekrar raporu", "Hızlı sprintler, şut tehdidi ve gol koşusu çok etkiliydi. Savunma dönüşü daha disiplinli olmalı.", 82, 84, 71, 72, 88, "Izlenmeli", "Hız ve sprint aksiyonları; Hücum ve bitiricilik tehdidi", "Savunma farkındalığı", 7, "hizli oyuncu; hucum katkisi; gelişim gerekli", "Savunma dönüşü ve ters kademe çalışmaları önerilir", seedDate.AddDays(39)),
+            DemoReport(2040, 1030, "Kaleci oyun başlangıcı idman raporu", "Kaleci refleks çalışmasında çabuk reaksiyon verdi, kısa pas kalitesi ve oyun görüşüyle baskı altında sakin kaldı. Uzun pas mesafesinde istikrar artırılmalı.", 72, 80, 74, 78, 82, "Takip Edilmeli", "Refleksler; Pasla oyun kurma", "Uzun pas istikrarı", 7, "teknik oyuncu; takip edilmeli", "Uzun pas tekrarları ve baskı altında ilk kontrol çalışmaları önerilir", seedDate.AddDays(40)),
+            DemoReport(2041, 1031, "Stoper hava hakimiyeti maç raporu", "Oyuncu hava toplarında güçlüydü, markaj temasını doğru kullandı ve savunma dönüşlerinde disiplinli kaldı. Topla çıkışta pas temposu gelişmeli.", 68, 84, 78, 76, 81, "Izlenmeli", "Hava topu ve markaj gücü", "Pas temposu", 7, "takip edilmeli", "İlk pas kalitesi ve baskı kırma çalışmaları önerilir", seedDate.AddDays(41)),
+            DemoReport(2042, 1032, "Sol bek çizgi katkısı raporu", "Sol çizgide hızlı bindirmeler yaptı, sprint tekrarlarında rakibini zorladı. Savunma dönüşü iyi başladı ancak pozisyon alma bir pozisyonda gecikti.", 74, 83, 72, 73, 82, "Izlenmeli", "Hız ve sprint aksiyonları", "Savunma farkındalığı", 7, "hizli oyuncu; gelişim gerekli", "Savunma pozisyon alma ve çizgi kapatma çalışmaları önerilir", seedDate.AddDays(42)),
+            DemoReport(2043, 1033, "Ön libero denge ve ikinci top raporu", "Merkezde ikinci topları topladı, pas bağlantısı sade ve güvenliydi. Oyun görüşü iyi ancak dikine pas denemesi artırılmalı.", 76, 81, 83, 78, 84, "Izlenmeli", "Pas kalitesi ve oyun görüşü; İkinci top takibi", "Dikine pas cesareti", 8, "teknik oyuncu; takip edilmeli", "Dikine pas ve geçiş hücumu başlangıçları çalışılmalı", seedDate.AddDays(43)),
+            DemoReport(2044, 1034, "Merkez orta saha tempo raporu", "Pas kalitesi ve oyun görüşüyle takımın temposunu yönetti. Dar alanda sakin kaldı fakat fiziksel temaslarda daha güçlü kalmalı.", 82, 74, 80, 77, 86, "Izlenmeli", "Pas kalitesi ve oyun görüşü", "Fiziksel temas dengesi", 8, "teknik oyuncu; takip edilmeli", "Temas sonrası denge ve tempo koruma çalışmaları önerilir", seedDate.AddDays(44)),
+            DemoReport(2045, 1035, "Kanat sprint idman raporu", "Oyuncu sağ kanatta çok hızlı ve çabuktu. Sprint tekrarlarında rakibini geçti, pas kalitesi fena değildi. Savunma dönüşlerinde zaman zaman geç kaldı.", 79, 88, 72, 73, 88, "Izlenmeli", "Hız ve sprint aksiyonları", "Savunma farkındalığı", 8, "hizli oyuncu; gelişim gerekli", "Savunma dönüşü ve final pas kalitesi çalışmaları önerilir", seedDate.AddDays(45)),
+            DemoReport(2046, 1036, "On numara yaratıcılık raporu", "Oyuncu merkezde oyun görüşü, pas kalitesi ve asist tehdidiyle öne çıktı. Şut tercihlerinde dengeli kaldı, top kaybı sonrası reaksiyon geliştirilmeli.", 85, 73, 80, 76, 89, "Transfer Onerisi", "Pas kalitesi ve oyun görüşü; Asist tehdidi", "Top kaybı sonrası reaksiyon", 8, "teknik oyuncu; hucum katkisi; takip edilmeli", "Top kaybı sonrası pres reaksiyonu ve final kararları çalışılmalı", seedDate.AddDays(46)),
+            DemoReport(2047, 1037, "Santrfor bitiricilik raporu", "Oyuncu santrfor pozisyonunda gol tehdidi ve bitiricilik kalitesiyle dikkat çekti. Ceza sahası koşuları doğruydu ve fiziksel olarak güçlü kaldı.", 82, 84, 74, 78, 87, "Izlenmeli", "Hücum ve bitiricilik tehdidi", "Bağlantı oyunu", 8, "hucum katkisi; takip edilmeli", "Sırtı dönük bağlantı oyunu ve tek temas pas çalışmaları önerilir", seedDate.AddDays(47)),
+            DemoReport(2048, 1035, "Kanat final aksiyon ikinci izleme", "Hızlı çıkışlar ve sprint mesafesi yine yüksek kaldı. Bir asist öncesi doğru koşu yaptı ancak karar verme anlarında riskli tercih yaptı.", 81, 87, 73, 72, 89, "Izlenmeli", "Hız ve sprint aksiyonları; Asist tehdidi", "Karar verme", 8, "hizli oyuncu; gelişim gerekli", "Son bölgede karar verme ve pas-şut tercihi çalışılmalı", seedDate.AddDays(48)),
+            DemoReport(2049, 1034, "Merkez oyun kurucu tekrar raporu", "Oyuncu pas yönü değiştirme ve oyun görüşüyle baskıyı kırdı. Kondisyon son bölümde korunmalı, fiziksel düşüş pas temposunu etkiledi.", 84, 72, 81, 76, 87, "Izlenmeli", "Pas kalitesi ve oyun görüşü", "Fiziksel dayanıklılık", 7, "teknik oyuncu; gelişim gerekli", "Fiziksel dayanıklılık ve maç sonu tempo çalışmaları önerilir", seedDate.AddDays(49)),
+            DemoReport(2050, 1031, "Stoper savunma geçiş idmanı", "Savunma dönüşü ve markaj paylaşımı idmanda güçlüydü. Topla çıkışta sade oynadı, uzun pas kalitesi gelişmeye açık.", 69, 84, 80, 77, 82, "Takip Edilmeli", "Savunma geçişi; Markaj gücü", "Uzun pas kalitesi", 7, "takip edilmeli", "Uzun pas ve oyun yönü değiştirme çalışmaları önerilir", seedDate.AddDays(50)),
+            DemoReport(2051, 1037, "Santrfor pres ve koşu raporu", "Gol vuruşu etkiliydi, ceza sahası koşularını doğru zamanladı ve pres başlangıçlarında istekliydi. Kondisyon son dakikalarda biraz düştü.", 83, 83, 75, 77, 88, "Izlenmeli", "Hücum ve bitiricilik tehdidi; Pres", "Fiziksel dayanıklılık", 8, "hucum katkisi; gelişim gerekli", "Pres sürekliliği ve maç sonu dayanıklılık çalışmaları önerilir", seedDate.AddDays(51))
         ];
     }
 
@@ -507,7 +557,10 @@ public class ScoutLogDbContext(DbContextOptions<ScoutLogDbContext> options) : Db
             DemoWatchlistItem(5, 1010, "Medium", "Sol kanat final aksiyonları için takipte kalmalı.", seedDate.AddDays(12)),
             DemoWatchlistItem(6, 1017, "High", "On numara profili yüksek potansiyel sinyali veriyor.", seedDate.AddDays(18)),
             DemoWatchlistItem(7, 1023, "High", "Liderlik ve oyun görüşü nedeniyle shortlist adayı.", seedDate.AddDays(24)),
-            DemoWatchlistItem(8, 1019, "Medium", "Ters ayak kanat profili için düzenli takip önerilir.", seedDate.AddDays(28))
+            DemoWatchlistItem(8, 1019, "Medium", "Ters ayak kanat profili için düzenli takip önerilir.", seedDate.AddDays(28)),
+            DemoWatchlistItem(9, 1035, "High", "Hızlı kanat profili ve tekrar eden sprint kalitesi nedeniyle yakından izlenmeli.", seedDate.AddDays(45)),
+            DemoWatchlistItem(10, 1036, "Medium", "Yaratıcı on numara profili, final pas kalitesi için takip edilmeli.", seedDate.AddDays(46)),
+            DemoWatchlistItem(11, 1037, "High", "Bitiricilik ve ceza sahası koşuları nedeniyle shortlist adayı.", seedDate.AddDays(47))
         ];
     }
 
@@ -608,6 +661,7 @@ public class ScoutLogDbContext(DbContextOptions<ScoutLogDbContext> options) : Db
         {
             1 => "Kasımpaşa U19",
             2 => "Başakşehir U19",
+            4 => "Rizespor U19",
             _ => "Trabzonspor U19"
         };
     }
@@ -634,6 +688,14 @@ public class ScoutLogDbContext(DbContextOptions<ScoutLogDbContext> options) : Db
             1007 or 1016 or 1023 => "Central Midfielder",
             1008 or 1017 => "Attacking Midfielder",
             1009 or 1010 or 1018 or 1019 => "Winger",
+            1030 => "Goalkeeper",
+            1031 => "Centre Back",
+            1032 => "Left Back",
+            1033 => "Defensive Midfielder",
+            1034 => "Central Midfielder",
+            1035 => "Winger",
+            1036 => "Attacking Midfielder",
+            1037 => "Striker",
             _ => "Striker"
         };
     }
@@ -645,7 +707,12 @@ public class ScoutLogDbContext(DbContextOptions<ScoutLogDbContext> options) : Db
             return 1;
         }
 
-        return playerId is >= 1009 and <= 1016 ? 2 : 3;
+        if (playerId is >= 1009 and <= 1016)
+        {
+            return 2;
+        }
+
+        return playerId is >= 1030 and <= 1037 ? 4 : 3;
     }
 
     private static int TeamIdForClub(int clubId)
@@ -659,6 +726,7 @@ public class ScoutLogDbContext(DbContextOptions<ScoutLogDbContext> options) : Db
         {
             1 => 4,
             2 => 5,
+            4 => 7,
             _ => 6
         };
     }

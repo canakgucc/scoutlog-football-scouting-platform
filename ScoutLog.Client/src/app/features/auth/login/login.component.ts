@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 
-type DemoClubId = 'fenerbahce' | 'galatasaray' | 'besiktas';
+type DemoClubId = 'fenerbahce' | 'galatasaray' | 'besiktas' | 'trabzonspor';
 type AuthTab = 'signIn' | 'register';
 
 interface DemoClub {
@@ -73,6 +73,12 @@ export class LoginComponent implements OnInit {
       id: 'besiktas',
       name: 'Beşiktaş Demo',
       email: 'scout@besiktas.local',
+      password: 'Demo123!'
+    },
+    {
+      id: 'trabzonspor',
+      name: 'Trabzonspor Demo',
+      email: 'scout@trabzonspor.local',
       password: 'Demo123!'
     }
   ];
