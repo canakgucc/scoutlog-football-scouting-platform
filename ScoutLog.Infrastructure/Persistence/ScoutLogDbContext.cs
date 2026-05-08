@@ -13,6 +13,7 @@ public class ScoutLogDbContext(DbContextOptions<ScoutLogDbContext> options) : Db
     public DbSet<ScoutReport> ScoutReports => Set<ScoutReport>();
     public DbSet<PerformanceMetric> PerformanceMetrics => Set<PerformanceMetric>();
     public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<WatchlistItem> WatchlistItems => Set<WatchlistItem>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -94,6 +95,10 @@ public class ScoutLogDbContext(DbContextOptions<ScoutLogDbContext> options) : Db
             entity.Property(player => player.Nationality).HasMaxLength(80).IsRequired();
             entity.Property(player => player.PhotoUrl).HasMaxLength(500);
             entity.Property(player => player.Status).HasMaxLength(40).IsRequired();
+            entity.Property(player => player.PipelineStatus)
+                .HasMaxLength(40)
+                .HasDefaultValue("New")
+                .IsRequired();
 
             entity.HasOne(player => player.Club)
                 .WithMany(club => club.Players)
@@ -103,6 +108,32 @@ public class ScoutLogDbContext(DbContextOptions<ScoutLogDbContext> options) : Db
             entity.HasOne(player => player.Team)
                 .WithMany(team => team.Players)
                 .HasForeignKey(player => player.TeamId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<WatchlistItem>(entity =>
+        {
+            entity.ToTable("WatchlistItems");
+            entity.HasKey(item => item.Id);
+            entity.HasIndex(item => new { item.ClubId, item.PlayerId }).IsUnique();
+            entity.Property(item => item.Priority).HasMaxLength(20).IsRequired();
+            entity.Property(item => item.Reason).HasMaxLength(500).IsRequired();
+            entity.Property(item => item.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+            entity.Property(item => item.UpdatedAt).HasDefaultValueSql("GETUTCDATE()");
+
+            entity.HasOne(item => item.Player)
+                .WithOne(player => player.WatchlistItem)
+                .HasForeignKey<WatchlistItem>(item => item.PlayerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(item => item.Club)
+                .WithMany(club => club.WatchlistItems)
+                .HasForeignKey(item => item.ClubId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(item => item.CreatedByUser)
+                .WithMany(user => user.WatchlistItems)
+                .HasForeignKey(item => item.CreatedByUserId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
@@ -313,7 +344,8 @@ public class ScoutLogDbContext(DbContextOptions<ScoutLogDbContext> options) : Db
             Weight = 70,
             Nationality = "Turkey",
             PhotoUrl = "https://placehold.co/320x320?text=EY",
-            Status = "Active"
+            Status = "Active",
+            PipelineStatus = "Recommended"
         });
 
         modelBuilder.Entity<ScoutReport>().HasData(new
@@ -342,6 +374,7 @@ public class ScoutLogDbContext(DbContextOptions<ScoutLogDbContext> options) : Db
 
         modelBuilder.Entity<Player>().HasData(CreateAdditionalDemoPlayers());
         modelBuilder.Entity<ScoutReport>().HasData(CreateAdditionalDemoReports(seedDate));
+        modelBuilder.Entity<WatchlistItem>().HasData(CreateDemoWatchlistItems(seedDate));
     }
 
     private static Player[] CreateAdditionalDemoPlayers()
@@ -447,7 +480,56 @@ public class ScoutLogDbContext(DbContextOptions<ScoutLogDbContext> options) : Db
             Weight = weight,
             Nationality = "Turkey",
             PhotoUrl = $"https://placehold.co/320x320?text={firstName[0]}{lastName[0]}",
-            Status = "Active"
+            Status = "Active",
+            PipelineStatus = PipelineStatusForPlayer(id)
+        };
+    }
+
+    private static WatchlistItem[] CreateDemoWatchlistItems(DateTime seedDate)
+    {
+        return
+        [
+            DemoWatchlistItem(1, 1, "High", "Kanat profili için A takım radarında tutulmalı.", seedDate.AddDays(2)),
+            DemoWatchlistItem(2, 1008, "High", "Yaratıcı orta saha profili, üst yaş grubu testine değer.", seedDate.AddDays(8)),
+            DemoWatchlistItem(3, 1006, "Medium", "Merkez denge rolü için düzenli takip edilmeli.", seedDate.AddDays(10)),
+            DemoWatchlistItem(4, 1009, "High", "Hız ve bire bir kalitesi nedeniyle tekrar izlenmeli.", seedDate.AddDays(11)),
+            DemoWatchlistItem(5, 1010, "Medium", "Sol kanat final aksiyonları için takipte kalmalı.", seedDate.AddDays(12)),
+            DemoWatchlistItem(6, 1017, "High", "On numara profili yüksek potansiyel sinyali veriyor.", seedDate.AddDays(18)),
+            DemoWatchlistItem(7, 1023, "High", "Liderlik ve oyun görüşü nedeniyle shortlist adayı.", seedDate.AddDays(24)),
+            DemoWatchlistItem(8, 1019, "Medium", "Ters ayak kanat profili için düzenli takip önerilir.", seedDate.AddDays(28))
+        ];
+    }
+
+    private static WatchlistItem DemoWatchlistItem(
+        int id,
+        int playerId,
+        string priority,
+        string reason,
+        DateTime date)
+    {
+        return new WatchlistItem
+        {
+            Id = id,
+            PlayerId = playerId,
+            ClubId = ClubIdForPlayer(playerId),
+            CreatedByUserId = ScoutIdForPlayer(playerId),
+            Priority = priority,
+            Reason = reason,
+            CreatedAt = date,
+            UpdatedAt = date
+        };
+    }
+
+    private static string PipelineStatusForPlayer(int playerId)
+    {
+        return (playerId % 6) switch
+        {
+            0 => "New",
+            1 => "Under Observation",
+            2 => "Follow-up Needed",
+            3 => "Shortlisted",
+            4 => "Recommended",
+            _ => "Rejected"
         };
     }
 

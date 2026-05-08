@@ -29,6 +29,7 @@ public static class DependencyInjection
         services.AddScoped<IPlayerRepository, PlayerRepository>();
         services.AddScoped<IScoutReportRepository, ScoutReportRepository>();
         services.AddScoped<IPerformanceMetricRepository, PerformanceMetricRepository>();
+        services.AddScoped<IWatchlistRepository, WatchlistRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IPasswordHasher, Sha256PasswordHasher>();
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();

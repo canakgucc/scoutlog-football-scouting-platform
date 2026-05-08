@@ -9,6 +9,7 @@ namespace ScoutLog.Application.Services;
 public class DashboardService(
     IPlayerRepository playerRepository,
     IScoutReportRepository scoutReportRepository,
+    IWatchlistRepository watchlistRepository,
     ICurrentUserContext currentUserContext) : IDashboardService
 {
     public async Task<DashboardSummaryDto> GetSummaryAsync(CancellationToken cancellationToken = default)
@@ -28,6 +29,7 @@ public class DashboardService(
         var activeReports = reports
             .Where(report => activePlayerIds.Contains(report.PlayerId))
             .ToList();
+        var watchlistItems = await watchlistRepository.GetByPlayerIdsAsync(activePlayerIds.ToList(), cancellationToken);
 
         var latestReports = activeReports
             .OrderByDescending(report => report.CreatedAt)
@@ -68,7 +70,28 @@ public class DashboardService(
             Average(activeReports.Select(report => report.TechnicalScore)),
             Average(activeReports.Select(report => report.PhysicalScore)),
             Average(activeReports.Select(report => report.TacticalScore)),
-            Average(activeReports.Select(report => report.MentalScore)));
+            Average(activeReports.Select(report => report.MentalScore)),
+            BuildPipelineSummary(activePlayers, watchlistItems));
+    }
+
+    private static PipelineSummaryDto BuildPipelineSummary(
+        IReadOnlyCollection<Player> players,
+        IReadOnlyCollection<WatchlistItem> watchlistItems)
+    {
+        return new PipelineSummaryDto(
+            CountByPipelineStatus(players, "New"),
+            CountByPipelineStatus(players, "Under Observation"),
+            CountByPipelineStatus(players, "Follow-up Needed"),
+            CountByPipelineStatus(players, "Shortlisted"),
+            CountByPipelineStatus(players, "Recommended"),
+            CountByPipelineStatus(players, "Rejected"),
+            watchlistItems.Count,
+            watchlistItems.Count(item => Contains(item.Priority, "High")));
+    }
+
+    private static int CountByPipelineStatus(IEnumerable<Player> players, string pipelineStatus)
+    {
+        return players.Count(player => Contains(player.PipelineStatus, pipelineStatus));
     }
 
     private static LatestScoutReportDto MapLatestReport(

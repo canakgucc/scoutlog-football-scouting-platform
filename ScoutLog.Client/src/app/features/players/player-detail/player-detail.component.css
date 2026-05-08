@@ -98,6 +98,24 @@ h2 {
   font-weight: 800;
 }
 
+.pipeline-badge,
+.watchlist-badge {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 850;
+}
+
+.pipeline-badge {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.watchlist-badge {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
 .info-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -119,6 +137,98 @@ h2 {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(320px, 0.8fr);
   gap: 14px;
+}
+
+.pipeline-panel {
+  background:
+    linear-gradient(135deg, rgba(15, 118, 110, 0.08), transparent 46%),
+    #ffffff;
+}
+
+.pipeline-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.8fr) minmax(320px, 1.2fr);
+  gap: 16px;
+}
+
+.pipeline-control,
+.watchlist-control {
+  display: grid;
+  align-content: start;
+  gap: 11px;
+  padding: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.pipeline-control label,
+.watchlist-control label {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.pipeline-control select,
+.watchlist-control select,
+.watchlist-control textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #ffffff;
+  color: var(--text);
+  font: inherit;
+}
+
+.pipeline-control button,
+.watchlist-actions button {
+  border: 1px solid #0f766e;
+  border-radius: 8px;
+  padding: 10px 13px;
+  background: #0f766e;
+  color: #ffffff;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.pipeline-control button:disabled,
+.watchlist-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.68;
+}
+
+.watchlist-heading,
+.watchlist-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.watchlist-heading strong,
+.watchlist-heading span {
+  display: block;
+}
+
+.watchlist-heading span {
+  margin-top: 3px;
+  color: var(--muted);
+}
+
+.watchlist-actions {
+  justify-content: flex-start;
+}
+
+.watchlist-actions .secondary {
+  border-color: #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+}
+
+.form-message {
+  color: #0f766e;
+  font-size: 0.88rem;
+  font-weight: 750;
 }
 
 .panel-header {
@@ -269,7 +379,8 @@ h2 {
 
 @media (max-width: 980px) {
   .hero-card,
-  .content-grid {
+  .content-grid,
+  .pipeline-grid {
     grid-template-columns: 1fr;
   }
 

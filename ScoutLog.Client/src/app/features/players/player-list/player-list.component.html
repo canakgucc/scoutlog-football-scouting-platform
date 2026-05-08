@@ -38,6 +38,35 @@
         <option value="Passive">Passive</option>
       </select>
     </label>
+
+    <label>
+      Pipeline
+      <select [ngModel]="selectedPipelineStatus()" (ngModelChange)="setPipelineStatus($event)">
+        <option value="All">All</option>
+        @for (pipelineStatus of pipelineStatuses; track pipelineStatus) {
+          <option [value]="pipelineStatus">{{ pipelineStatus }}</option>
+        }
+      </select>
+    </label>
+
+    <label>
+      Priority
+      <select [ngModel]="selectedPriority()" (ngModelChange)="setPriority($event)">
+        <option value="All">All</option>
+        @for (priority of watchlistPriorities; track priority) {
+          <option [value]="priority">{{ priority }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="toggle-filter">
+      <input
+        type="checkbox"
+        [ngModel]="watchlistOnly()"
+        (ngModelChange)="setWatchlistOnly($event)"
+      />
+      Watchlist only
+    </label>
   </section>
 
   @if (isLoading()) {
@@ -77,6 +106,18 @@
                 <span>{{ player.position }}</span>
               </div>
               <span class="status">{{ player.status }}</span>
+            </div>
+
+            <div class="badge-row">
+              <span class="pipeline-badge">{{ player.pipelineStatus }}</span>
+              @if (player.isWatchlisted) {
+                <span class="watchlist-badge">Watchlist</span>
+              }
+              @if (player.watchlistPriority; as priority) {
+                <span class="priority-badge" [class.high]="priority === 'High'" [class.medium]="priority === 'Medium'">
+                  {{ priority }}
+                </span>
+              }
             </div>
 
             <div class="meta-grid">

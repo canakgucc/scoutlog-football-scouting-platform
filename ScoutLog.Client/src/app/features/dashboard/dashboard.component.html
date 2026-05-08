@@ -60,6 +60,44 @@
       </article>
     </div>
 
+    <section class="panel pipeline-panel">
+      <div class="panel-header">
+        <h3>Talent Pipeline</h3>
+        <span>{{ summary.pipelineSummary.totalWatchlistCount }} watchlisted</span>
+      </div>
+
+      <div class="pipeline-summary-grid">
+        <article>
+          <span>New</span>
+          <strong>{{ summary.pipelineSummary.newCount }}</strong>
+        </article>
+        <article>
+          <span>Under Observation</span>
+          <strong>{{ summary.pipelineSummary.underObservationCount }}</strong>
+        </article>
+        <article>
+          <span>Follow-up Needed</span>
+          <strong>{{ summary.pipelineSummary.followUpNeededCount }}</strong>
+        </article>
+        <article>
+          <span>Shortlisted</span>
+          <strong>{{ summary.pipelineSummary.shortlistedCount }}</strong>
+        </article>
+        <article>
+          <span>Recommended</span>
+          <strong>{{ summary.pipelineSummary.recommendedCount }}</strong>
+        </article>
+        <article>
+          <span>Rejected</span>
+          <strong>{{ summary.pipelineSummary.rejectedCount }}</strong>
+        </article>
+        <article class="watchlist-stat">
+          <span>High Priority Watchlist</span>
+          <strong>{{ summary.pipelineSummary.highPriorityWatchlistCount }}</strong>
+        </article>
+      </div>
+    </section>
+
     <div class="dashboard-grid">
       <section class="panel latest">
         <div class="panel-header">

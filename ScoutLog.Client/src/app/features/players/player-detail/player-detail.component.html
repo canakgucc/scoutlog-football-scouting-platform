@@ -33,6 +33,10 @@
 
       <div class="profile-actions">
         <span class="status">{{ player.status }}</span>
+        <span class="pipeline-badge">{{ player.pipelineStatus }}</span>
+        @if (player.isWatchlisted) {
+          <span class="watchlist-badge">{{ player.watchlistPriority }} watchlist</span>
+        }
         <a [routerLink]="['/scout-reports/create', player.id]">New report</a>
       </div>
     </div>
@@ -55,6 +59,86 @@
         <strong>{{ player.weight }} kg</strong>
       </article>
     </div>
+
+    <section class="panel pipeline-panel">
+      <div class="panel-header">
+        <h3>Talent Pipeline</h3>
+        <span>scouting workflow</span>
+      </div>
+
+      <div class="pipeline-grid">
+        <div class="pipeline-control">
+          <label for="pipelineStatus">Pipeline status</label>
+          <select
+            id="pipelineStatus"
+            [ngModel]="selectedPipelineStatus()"
+            (ngModelChange)="setPipelineStatus($event)"
+          >
+            @for (pipelineStatus of pipelineStatuses; track pipelineStatus) {
+              <option [value]="pipelineStatus">{{ pipelineStatus }}</option>
+            }
+          </select>
+          <button type="button" [disabled]="isPipelineSaving()" (click)="savePipelineStatus()">
+            {{ isPipelineSaving() ? 'Saving...' : 'Update status' }}
+          </button>
+          @if (pipelineMessage()) {
+            <p class="form-message">{{ pipelineMessage() }}</p>
+          }
+        </div>
+
+        <div class="watchlist-control">
+          <div class="watchlist-heading">
+            <div>
+              <strong>Watchlist</strong>
+              <span>{{ player.isWatchlisted ? 'Active tracking' : 'Not currently tracked' }}</span>
+            </div>
+            @if (player.isWatchlisted) {
+              <span class="watchlist-badge">{{ player.watchlistPriority }}</span>
+            }
+          </div>
+
+          <label for="watchlistPriority">Priority</label>
+          <select
+            id="watchlistPriority"
+            [ngModel]="watchlistPriority()"
+            (ngModelChange)="setWatchlistPriority($event)"
+          >
+            @for (priority of watchlistPriorities; track priority) {
+              <option [value]="priority">{{ priority }}</option>
+            }
+          </select>
+
+          <label for="watchlistReason">Reason / comment</label>
+          <textarea
+            id="watchlistReason"
+            rows="4"
+            placeholder="Why should this player stay on the club radar?"
+            [ngModel]="watchlistReason()"
+            (ngModelChange)="setWatchlistReason($event)"
+          ></textarea>
+
+          <div class="watchlist-actions">
+            <button type="button" [disabled]="isWatchlistSaving()" (click)="saveWatchlist()">
+              {{ isWatchlistSaving() ? 'Saving...' : 'Save watchlist' }}
+            </button>
+            @if (player.isWatchlisted) {
+              <button
+                type="button"
+                class="secondary"
+                [disabled]="isWatchlistSaving()"
+                (click)="removeWatchlist()"
+              >
+                Remove
+              </button>
+            }
+          </div>
+
+          @if (watchlistMessage()) {
+            <p class="form-message">{{ watchlistMessage() }}</p>
+          }
+        </div>
+      </div>
+    </section>
 
     <div class="content-grid">
       <section class="panel score-panel">

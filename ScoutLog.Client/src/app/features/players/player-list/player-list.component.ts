@@ -2,7 +2,7 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
-import { Player } from '../player.models';
+import { PIPELINE_STATUSES, Player, WATCHLIST_PRIORITIES } from '../player.models';
 import { PlayerPhotoCacheService } from '../player-photo-cache.service';
 import { PlayerService } from '../player.service';
 
@@ -26,6 +26,11 @@ export class PlayerListComponent implements OnInit {
   readonly searchTerm = signal('');
   readonly selectedPosition = signal('All');
   readonly selectedStatus = signal('All');
+  readonly selectedPipelineStatus = signal('All');
+  readonly selectedPriority = signal('All');
+  readonly watchlistOnly = signal(false);
+  readonly pipelineStatuses = PIPELINE_STATUSES;
+  readonly watchlistPriorities = WATCHLIST_PRIORITIES;
 
   readonly positions = computed(() => [
     'All',
@@ -36,6 +41,9 @@ export class PlayerListComponent implements OnInit {
     const term = this.searchTerm().trim().toLowerCase();
     const position = this.selectedPosition();
     const status = this.selectedStatus();
+    const pipelineStatus = this.selectedPipelineStatus();
+    const priority = this.selectedPriority();
+    const watchlistOnly = this.watchlistOnly();
 
     return this.players().filter((player) => {
       const fullName = `${player.firstName} ${player.lastName}`.toLowerCase();
@@ -46,8 +54,19 @@ export class PlayerListComponent implements OnInit {
         player.nationality.toLowerCase().includes(term);
       const matchesPosition = position === 'All' || player.position === position;
       const matchesStatus = status === 'All' || player.status === status;
+      const matchesPipelineStatus =
+        pipelineStatus === 'All' || player.pipelineStatus === pipelineStatus;
+      const matchesWatchlist = !watchlistOnly || player.isWatchlisted;
+      const matchesPriority = priority === 'All' || player.watchlistPriority === priority;
 
-      return matchesSearch && matchesPosition && matchesStatus;
+      return (
+        matchesSearch &&
+        matchesPosition &&
+        matchesStatus &&
+        matchesPipelineStatus &&
+        matchesWatchlist &&
+        matchesPriority
+      );
     });
   });
 
@@ -87,6 +106,18 @@ export class PlayerListComponent implements OnInit {
 
   setStatus(value: string): void {
     this.selectedStatus.set(value);
+  }
+
+  setPipelineStatus(value: string): void {
+    this.selectedPipelineStatus.set(value);
+  }
+
+  setPriority(value: string): void {
+    this.selectedPriority.set(value);
+  }
+
+  setWatchlistOnly(value: boolean): void {
+    this.watchlistOnly.set(value);
   }
 
   photoSource(player: Player): string | null {

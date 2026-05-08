@@ -13,4 +13,8 @@ public record PlayerDto(
     int Weight,
     string Nationality,
     string? PhotoUrl,
-    string Status);
+    string Status,
+    string PipelineStatus,
+    bool IsWatchlisted,
+    string? WatchlistPriority,
+    string? WatchlistReason);

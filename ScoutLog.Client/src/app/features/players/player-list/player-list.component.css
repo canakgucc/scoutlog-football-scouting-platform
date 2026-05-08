@@ -54,7 +54,8 @@ button,
 
 .filters {
   display: grid;
-  grid-template-columns: minmax(220px, 1fr) 220px 180px;
+  grid-template-columns: minmax(220px, 1fr) repeat(4, minmax(150px, 190px));
+  align-items: end;
   gap: 14px;
   padding: 16px;
   border: 1px solid var(--border);
@@ -73,6 +74,25 @@ input,
 select {
   min-height: 42px;
   padding: 10px 12px;
+}
+
+.toggle-filter {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #f8fafc;
+  color: var(--text);
+}
+
+.toggle-filter input {
+  min-height: auto;
+  width: 16px;
+  height: 16px;
+  padding: 0;
 }
 
 .player-grid {
@@ -170,6 +190,46 @@ select {
   color: #047857;
   font-size: 0.78rem;
   font-weight: 800;
+}
+
+.badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.pipeline-badge,
+.watchlist-badge,
+.priority-badge {
+  padding: 5px 8px;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 850;
+}
+
+.pipeline-badge {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.watchlist-badge {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+.priority-badge {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.priority-badge.medium {
+  background: #ecfeff;
+  color: #0e7490;
+}
+
+.priority-badge.high {
+  background: #fff1f2;
+  color: #be123c;
 }
 
 .meta-grid {
@@ -284,6 +344,10 @@ select {
 }
 
 @media (max-width: 1120px) {
+  .filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .player-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

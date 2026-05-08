@@ -9,5 +9,14 @@ public interface IPlayerService
     Task<PlayerDto?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
     Task<PlayerDto> CreateAsync(CreatePlayerDto request, CancellationToken cancellationToken = default);
     Task<PlayerDto?> UpdateAsync(int id, UpdatePlayerDto request, CancellationToken cancellationToken = default);
+    Task<PlayerDto?> UpdatePipelineStatusAsync(
+        int id,
+        UpdatePlayerPipelineStatusDto request,
+        CancellationToken cancellationToken = default);
+    Task<PlayerDto?> AddOrUpdateWatchlistAsync(
+        int id,
+        UpsertWatchlistItemDto request,
+        CancellationToken cancellationToken = default);
+    Task<bool> RemoveFromWatchlistAsync(int id, CancellationToken cancellationToken = default);
     Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default);
 }

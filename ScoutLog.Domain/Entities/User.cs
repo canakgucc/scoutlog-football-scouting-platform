@@ -20,4 +20,5 @@ public class User
 
     public ICollection<ScoutReport> ScoutReports { get; set; } = new List<ScoutReport>();
     public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+    public ICollection<WatchlistItem> WatchlistItems { get; set; } = new List<WatchlistItem>();
 }

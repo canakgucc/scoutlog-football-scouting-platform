@@ -185,4 +185,103 @@ public class PlayersController(
             return Problem("An unexpected error occurred while deleting the player.");
         }
     }
+
+    [HttpPatch("{id:int}/pipeline-status")]
+    [ProducesResponseType(typeof(PlayerDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<PlayerDto>> UpdatePipelineStatus(
+        int id,
+        [FromBody] UpdatePlayerPipelineStatusDto request,
+        CancellationToken cancellationToken)
+    {
+        if (id <= 0)
+        {
+            return BadRequest("Player id must be greater than zero.");
+        }
+
+        try
+        {
+            var player = await playerService.UpdatePipelineStatusAsync(id, request, cancellationToken);
+
+            return player is null
+                ? NotFound($"Player with id {id} was not found.")
+                : Ok(player);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An unexpected error occurred while updating pipeline status for player {PlayerId}.", id);
+            return Problem("An unexpected error occurred while updating pipeline status.");
+        }
+    }
+
+    [HttpPut("{id:int}/watchlist")]
+    [ProducesResponseType(typeof(PlayerDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<PlayerDto>> AddOrUpdateWatchlist(
+        int id,
+        [FromBody] UpsertWatchlistItemDto request,
+        CancellationToken cancellationToken)
+    {
+        if (id <= 0)
+        {
+            return BadRequest("Player id must be greater than zero.");
+        }
+
+        try
+        {
+            var player = await playerService.AddOrUpdateWatchlistAsync(id, request, cancellationToken);
+
+            return player is null
+                ? NotFound($"Player with id {id} was not found.")
+                : Ok(player);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An unexpected error occurred while updating watchlist for player {PlayerId}.", id);
+            return Problem("An unexpected error occurred while updating watchlist.");
+        }
+    }
+
+    [HttpDelete("{id:int}/watchlist")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> RemoveFromWatchlist(int id, CancellationToken cancellationToken)
+    {
+        if (id <= 0)
+        {
+            return BadRequest("Player id must be greater than zero.");
+        }
+
+        try
+        {
+            var removed = await playerService.RemoveFromWatchlistAsync(id, cancellationToken);
+
+            return removed
+                ? NoContent()
+                : NotFound($"Player with id {id} was not found on the current club watchlist.");
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An unexpected error occurred while removing player {PlayerId} from watchlist.", id);
+            return Problem("An unexpected error occurred while removing watchlist item.");
+        }
+    }
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ScoutLog.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using ScoutLog.Infrastructure.Persistence;
 namespace ScoutLog.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ScoutLogDbContext))]
-    partial class ScoutLogDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260508084346_AddTalentPipelineAndWatchlist")]
+    partial class AddTalentPipelineAndWatchlist
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

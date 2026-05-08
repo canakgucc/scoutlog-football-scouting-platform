@@ -12,6 +12,10 @@ export interface Player {
   nationality: string;
   photoUrl: string | null;
   status: string;
+  pipelineStatus: PipelineStatus;
+  isWatchlisted: boolean;
+  watchlistPriority: WatchlistPriority | null;
+  watchlistReason: string | null;
   technicalScore?: number | null;
   physicalScore?: number | null;
   tacticalScore?: number | null;
@@ -37,3 +41,33 @@ export interface CreatePlayerRequest {
   photoUrl: string | null;
   status: string;
 }
+
+export type PipelineStatus =
+  | 'New'
+  | 'Under Observation'
+  | 'Follow-up Needed'
+  | 'Shortlisted'
+  | 'Recommended'
+  | 'Rejected';
+
+export type WatchlistPriority = 'Low' | 'Medium' | 'High';
+
+export interface UpdatePipelineStatusRequest {
+  pipelineStatus: PipelineStatus;
+}
+
+export interface UpsertWatchlistRequest {
+  priority: WatchlistPriority;
+  reason: string;
+}
+
+export const PIPELINE_STATUSES: PipelineStatus[] = [
+  'New',
+  'Under Observation',
+  'Follow-up Needed',
+  'Shortlisted',
+  'Recommended',
+  'Rejected'
+];
+
+export const WATCHLIST_PRIORITIES: WatchlistPriority[] = ['Low', 'Medium', 'High'];

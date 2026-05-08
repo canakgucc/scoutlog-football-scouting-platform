@@ -12,4 +12,5 @@ public class Club
     public ICollection<Team> Teams { get; set; } = new List<Team>();
     public ICollection<Player> Players { get; set; } = new List<Player>();
     public ICollection<User> Users { get; set; } = new List<User>();
+    public ICollection<WatchlistItem> WatchlistItems { get; set; } = new List<WatchlistItem>();
 }

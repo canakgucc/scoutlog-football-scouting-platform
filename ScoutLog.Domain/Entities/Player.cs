@@ -13,6 +13,7 @@ public class Player
     public string Nationality { get; set; } = string.Empty;
     public string? PhotoUrl { get; set; }
     public string Status { get; set; } = "Active";
+    public string PipelineStatus { get; set; } = "New";
 
     public int ClubId { get; set; }
     public Club Club { get; set; } = null!;
@@ -22,4 +23,5 @@ public class Player
 
     public ICollection<ScoutReport> ScoutReports { get; set; } = new List<ScoutReport>();
     public ICollection<PerformanceMetric> PerformanceMetrics { get; set; } = new List<PerformanceMetric>();
+    public WatchlistItem? WatchlistItem { get; set; }
 }

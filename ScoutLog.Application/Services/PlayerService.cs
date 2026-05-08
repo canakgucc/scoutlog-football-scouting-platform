@@ -10,19 +10,43 @@ public class PlayerService(
     IPlayerRepository playerRepository,
     IScoutReportRepository scoutReportRepository,
     IPerformanceMetricRepository performanceMetricRepository,
+    IWatchlistRepository watchlistRepository,
     IRepository<Team> teamRepository,
     ICurrentUserContext currentUserContext) : IPlayerService
 {
+    private static readonly string[] ValidPipelineStatuses =
+    [
+        "New",
+        "Under Observation",
+        "Follow-up Needed",
+        "Shortlisted",
+        "Recommended",
+        "Rejected"
+    ];
+
+    private static readonly string[] ValidWatchlistPriorities =
+    [
+        "Low",
+        "Medium",
+        "High"
+    ];
+
     public async Task<IReadOnlyList<PlayerDto>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         var players = await playerRepository.GetAllAsync(cancellationToken);
         var clubId = currentUserContext.ClubId;
-
-        return players
+        var activePlayers = players
             .Where(player => player.ClubId == clubId && !IsPassive(player))
             .OrderBy(player => player.LastName)
             .ThenBy(player => player.FirstName)
-            .Select(MapToDto)
+            .ToList();
+        var watchlistItems = await watchlistRepository.GetByPlayerIdsAsync(
+            activePlayers.Select(player => player.Id).ToList(),
+            cancellationToken);
+        var watchlistByPlayerId = watchlistItems.ToDictionary(item => item.PlayerId);
+
+        return activePlayers
+            .Select(player => MapToDto(player, watchlistByPlayerId.GetValueOrDefault(player.Id)))
             .ToList();
     }
 
@@ -37,10 +61,16 @@ public class PlayerService(
 
         var players = await playerRepository.GetByTeamIdAsync(teamId, cancellationToken);
         var clubId = currentUserContext.ClubId;
-
-        return players
+        var activePlayers = players
             .Where(player => player.ClubId == clubId && !IsPassive(player))
-            .Select(MapToDto)
+            .ToList();
+        var watchlistItems = await watchlistRepository.GetByPlayerIdsAsync(
+            activePlayers.Select(player => player.Id).ToList(),
+            cancellationToken);
+        var watchlistByPlayerId = watchlistItems.ToDictionary(item => item.PlayerId);
+
+        return activePlayers
+            .Select(player => MapToDto(player, watchlistByPlayerId.GetValueOrDefault(player.Id)))
             .ToList();
     }
 
@@ -52,7 +82,14 @@ public class PlayerService(
         }
 
         var player = await playerRepository.GetByIdAsync(id, cancellationToken);
-        return player is null || !CanAccess(player) || IsPassive(player) ? null : MapToDto(player);
+        if (player is null || !CanAccess(player) || IsPassive(player))
+        {
+            return null;
+        }
+
+        var watchlistItem = await watchlistRepository.GetByPlayerIdAsync(id, cancellationToken);
+
+        return MapToDto(player, watchlistItem);
     }
 
     public async Task<PlayerDto> CreateAsync(
@@ -75,13 +112,14 @@ public class PlayerService(
             Weight = request.Weight,
             Nationality = request.Nationality.Trim(),
             PhotoUrl = string.IsNullOrWhiteSpace(request.PhotoUrl) ? null : request.PhotoUrl.Trim(),
-            Status = request.Status.Trim()
+            Status = request.Status.Trim(),
+            PipelineStatus = "New"
         };
 
         await playerRepository.AddAsync(player, cancellationToken);
         await playerRepository.SaveChangesAsync(cancellationToken);
 
-        return MapToDto(player);
+        return MapToDto(player, null);
     }
 
     public async Task<PlayerDto?> UpdateAsync(
@@ -119,7 +157,116 @@ public class PlayerService(
         playerRepository.Update(player);
         await playerRepository.SaveChangesAsync(cancellationToken);
 
-        return MapToDto(player);
+        var watchlistItem = await watchlistRepository.GetByPlayerIdAsync(id, cancellationToken);
+
+        return MapToDto(player, watchlistItem);
+    }
+
+    public async Task<PlayerDto?> UpdatePipelineStatusAsync(
+        int id,
+        UpdatePlayerPipelineStatusDto request,
+        CancellationToken cancellationToken = default)
+    {
+        if (id <= 0)
+        {
+            throw new ArgumentException("Player id must be greater than zero.", nameof(id));
+        }
+
+        var pipelineStatus = NormalizeAllowedValue(
+            request.PipelineStatus,
+            ValidPipelineStatuses,
+            "Pipeline status");
+
+        var player = await playerRepository.GetByIdAsync(id, cancellationToken);
+        if (player is null || !CanAccess(player) || IsPassive(player))
+        {
+            return null;
+        }
+
+        player.PipelineStatus = pipelineStatus;
+
+        playerRepository.Update(player);
+        await playerRepository.SaveChangesAsync(cancellationToken);
+
+        var watchlistItem = await watchlistRepository.GetByPlayerIdAsync(id, cancellationToken);
+
+        return MapToDto(player, watchlistItem);
+    }
+
+    public async Task<PlayerDto?> AddOrUpdateWatchlistAsync(
+        int id,
+        UpsertWatchlistItemDto request,
+        CancellationToken cancellationToken = default)
+    {
+        if (id <= 0)
+        {
+            throw new ArgumentException("Player id must be greater than zero.", nameof(id));
+        }
+
+        var priority = NormalizeAllowedValue(
+            request.Priority,
+            ValidWatchlistPriorities,
+            "Watchlist priority");
+
+        if (string.IsNullOrWhiteSpace(request.Reason))
+        {
+            throw new ArgumentException("Watchlist reason cannot be empty.", nameof(request));
+        }
+
+        var player = await playerRepository.GetByIdAsync(id, cancellationToken);
+        if (player is null || !CanAccess(player) || IsPassive(player))
+        {
+            return null;
+        }
+
+        var watchlistItem = await watchlistRepository.GetByPlayerIdAsync(id, cancellationToken);
+        var now = DateTime.UtcNow;
+
+        if (watchlistItem is null)
+        {
+            watchlistItem = new WatchlistItem
+            {
+                PlayerId = player.Id,
+                ClubId = currentUserContext.ClubId,
+                CreatedByUserId = currentUserContext.UserId,
+                CreatedAt = now
+            };
+
+            await watchlistRepository.AddAsync(watchlistItem, cancellationToken);
+        }
+
+        watchlistItem.Priority = priority;
+        watchlistItem.Reason = request.Reason.Trim();
+        watchlistItem.UpdatedAt = now;
+
+        await watchlistRepository.SaveChangesAsync(cancellationToken);
+
+        return MapToDto(player, watchlistItem);
+    }
+
+    public async Task<bool> RemoveFromWatchlistAsync(int id, CancellationToken cancellationToken = default)
+    {
+        if (id <= 0)
+        {
+            throw new ArgumentException("Player id must be greater than zero.", nameof(id));
+        }
+
+        var player = await playerRepository.GetByIdAsync(id, cancellationToken);
+        if (player is null || !CanAccess(player) || IsPassive(player))
+        {
+            return false;
+        }
+
+        var watchlistItem = await watchlistRepository.GetByPlayerIdAsync(id, cancellationToken);
+        if (watchlistItem is null || watchlistItem.ClubId != currentUserContext.ClubId)
+        {
+            return false;
+        }
+
+        watchlistRepository.Delete(watchlistItem);
+        await watchlistRepository.SaveChangesAsync(cancellationToken);
+
+        return true;
     }
 
     public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
@@ -147,13 +294,19 @@ public class PlayerService(
             performanceMetricRepository.Delete(performanceMetric);
         }
 
+        var watchlistItem = await watchlistRepository.GetByPlayerIdAsync(id, cancellationToken);
+        if (watchlistItem is not null && watchlistItem.ClubId == currentUserContext.ClubId)
+        {
+            watchlistRepository.Delete(watchlistItem);
+        }
+
         playerRepository.Delete(player);
         await playerRepository.SaveChangesAsync(cancellationToken);
 
         return true;
     }
 
-    private static PlayerDto MapToDto(Player player)
+    private static PlayerDto MapToDto(Player player, WatchlistItem? watchlistItem)
     {
         return new PlayerDto(
             player.Id,
@@ -168,7 +321,11 @@ public class PlayerService(
             player.Weight,
             player.Nationality,
             player.PhotoUrl,
-            player.Status);
+            player.Status,
+            player.PipelineStatus,
+            watchlistItem is not null,
+            watchlistItem?.Priority,
+            watchlistItem?.Reason);
     }
 
     private static void ValidatePlayer(CreatePlayerDto request)
@@ -260,5 +417,22 @@ public class PlayerService(
     private static bool IsPassive(Player player)
     {
         return string.Equals(player.Status, "Passive", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string NormalizeAllowedValue(
+        string value,
+        IReadOnlyCollection<string> allowedValues,
+        string fieldName)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            throw new ArgumentException($"{fieldName} cannot be empty.");
+        }
+
+        var normalized = allowedValues.FirstOrDefault(allowedValue =>
+            string.Equals(allowedValue, value.Trim(), StringComparison.OrdinalIgnoreCase));
+
+        return normalized ?? throw new ArgumentException(
+            $"{fieldName} must be one of: {string.Join(", ", allowedValues)}.");
     }
 }

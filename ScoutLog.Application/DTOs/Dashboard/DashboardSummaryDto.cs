@@ -12,4 +12,5 @@ public record DashboardSummaryDto(
     double AverageTechnicalScore,
     double AveragePhysicalScore,
     double AverageTacticalScore,
-    double AverageMentalScore);
+    double AverageMentalScore,
+    PipelineSummaryDto PipelineSummary);

@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../../core/api.config';
 import { ScoutReport } from '../scout-reports/scout-report.models';
-import { CreatePlayerRequest, Player } from './player.models';
+import { CreatePlayerRequest, Player, UpdatePipelineStatusRequest, UpsertWatchlistRequest } from './player.models';
 
 @Injectable({ providedIn: 'root' })
 export class PlayerService {
@@ -31,6 +31,18 @@ export class PlayerService {
 
   deletePlayer(id: number): Observable<void> {
     return this.http.delete<void>(`${API_BASE_URL}/api/Players/${id}`);
+  }
+
+  updatePipelineStatus(id: number, request: UpdatePipelineStatusRequest): Observable<Player> {
+    return this.http.patch<Player>(`${API_BASE_URL}/api/Players/${id}/pipeline-status`, request);
+  }
+
+  addOrUpdateWatchlist(id: number, request: UpsertWatchlistRequest): Observable<Player> {
+    return this.http.put<Player>(`${API_BASE_URL}/api/Players/${id}/watchlist`, request);
+  }
+
+  removeFromWatchlist(id: number): Observable<void> {
+    return this.http.delete<void>(`${API_BASE_URL}/api/Players/${id}/watchlist`);
   }
 
   getReportsByPlayerId(playerId: number): Observable<ScoutReport[]> {

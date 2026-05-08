@@ -11,6 +11,7 @@ export interface DashboardSummary {
   averagePhysicalScore: number;
   averageTacticalScore: number;
   averageMentalScore: number;
+  pipelineSummary: PipelineSummary;
 }
 
 export interface LatestScoutReport {
@@ -37,4 +38,15 @@ export interface TopPotentialPlayer {
 export interface PositionDistribution {
   position: string;
   count: number;
+}
+
+export interface PipelineSummary {
+  newCount: number;
+  underObservationCount: number;
+  followUpNeededCount: number;
+  shortlistedCount: number;
+  recommendedCount: number;
+  rejectedCount: number;
+  totalWatchlistCount: number;
+  highPriorityWatchlistCount: number;
 }
