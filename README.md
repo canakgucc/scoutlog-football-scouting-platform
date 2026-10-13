@@ -1,6 +1,6 @@
 # ScoutLog
 
-ScoutLog is a football club scouting demo platform built with ASP.NET Core Web API, Entity Framework Core, SQL Server, JWT authentication, and Angular.
+ScoutLog helps football clubs track and compare player prospects. It includes a JWT-protected ASP.NET Core API, role-based access and interactive dashboards..
 
 ## Configuration
 
